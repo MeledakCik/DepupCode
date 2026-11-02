@@ -201,6 +201,9 @@ public sealed class PhpServerServiceTests
     [Fact]
     public void Runtime_manifest_is_pinned_to_official_https_and_sha256()
     {
+        Assert.Equal("8.4.27", PhpRuntimeService.DefaultPhpVersion);
+        Assert.Equal("2.4.66", PhpRuntimeService.ApacheVersion);
+        Assert.Single(PhpRuntimeService.PhpVersions);
         foreach (var manifest in new[] { PhpRuntimeService.PhpManifest, PhpRuntimeService.ApacheManifest })
         {
             var uri = new Uri(manifest.DownloadUrl);

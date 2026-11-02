@@ -53,6 +53,7 @@ public sealed class AppSettings
     public int LocalServerPortEnd { get; set; } = 8099;
     public string PhpRuntimePath { get; set; } = "";
     public string ApacheRuntimePath { get; set; } = "";
+    public string LocalServerPhpVersion { get; set; } = "8.4.27";
     public bool LocalServerUsePhpFallback { get; set; } = true;
     public Dictionary<string, string> LocalServerDocumentRoots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public List<RecentWorkspaceItem> RecentWorkspaces { get; set; } = [];

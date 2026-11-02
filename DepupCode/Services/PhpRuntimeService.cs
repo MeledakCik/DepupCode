@@ -19,35 +19,58 @@ public sealed record RuntimeComponentManifest(
 /// saat pertama dipakai, diverifikasi SHA-256, lalu diekstrak ke %LOCALAPPDATA%.
 /// Tidak ada installer, service Windows, hak Administrator, atau perubahan PATH global.
 /// </summary>
+public sealed record PhpVersionInfo(
+    string Version,
+    string DownloadUrl,
+    string Sha256,
+    string SizeLabel);
+
 public sealed class PhpRuntimeService
 {
-    public const string PhpVersion = "8.4.27";
-    public const string PhpDownloadUrl = "https://windows.php.net/downloads/releases/php-8.4.27-1-Win32-vs17-x64.zip";
-    public const string PhpSha256 = "53db2047139bdfb8e6c7c7d5860a0a6a2a4f1dcac49fcf18ae610a14d8ccdf5b";
-    public const string PhpSizeLabel = "33.82 MB";
-
+    public const string DefaultPhpVersion = "8.4.27";
     public const string ApacheVersion = "2.4.66";
     public const string ApacheDownloadUrl = "https://www.apachelounge.com/download/VS17/binaries/httpd-2.4.66-251206-Win64-VS17.zip";
     public const string ApacheSha256 = "2cd1f349b6705e43e784e876a233eeb1a859fa6b8abc693a91f87b35a368f7f9";
     public const string ApacheSizeLabel = "10.99 MB";
+    public const string PhpDownloadUrl = "https://windows.php.net/downloads/releases/php-8.4.27-1-Win32-vs17-x64.zip";
+    public const string PhpSha256 = "53db2047139bdfb8e6c7c7d5860a0a6a2a4f1dcac49fcf18ae610a14d8ccdf5b";
+    public const string PhpSizeLabel = "33.82 MB";
+
+    public static readonly IReadOnlyList<PhpVersionInfo> PhpVersions = new[]
+    {
+        new PhpVersionInfo(DefaultPhpVersion, PhpDownloadUrl, PhpSha256, PhpSizeLabel),
+    };
 
     private static readonly HttpClient Http = CreateHttpClient();
 
-    public PhpRuntimeService(string? rootDirectory = null)
+    public PhpRuntimeService(string? rootDirectory = null, string? phpVersion = null)
     {
         RootDirectory = string.IsNullOrWhiteSpace(rootDirectory)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DepupCode", "runtimes")
             : Path.GetFullPath(rootDirectory);
+        SelectedPhpVersion = NormalizePhpVersion(phpVersion ?? DefaultPhpVersion);
     }
 
     public string RootDirectory { get; }
-    public string PhpDirectory => Path.Combine(RootDirectory, "php", PhpVersion);
+    public string SelectedPhpVersion { get; set; }
+    public string PhpDirectory => Path.Combine(RootDirectory, "php", SelectedPhpVersion);
     public string ApacheDirectory => Path.Combine(RootDirectory, "apache", ApacheVersion);
     public string ManifestPath => Path.Combine(RootDirectory, "manifest.json");
     public string NoticePath => Path.Combine(RootDirectory, "NOTICE.txt");
 
+    public PhpVersionInfo SelectedPhpManifest =>
+        PhpVersions.FirstOrDefault(v => v.Version == SelectedPhpVersion) ?? PhpVersions[0];
+
+    public static PhpVersionInfo GetPhpManifest(string version) =>
+        PhpVersions.FirstOrDefault(v => v.Version == version) ?? PhpVersions[0];
+
+    private static string NormalizePhpVersion(string version) =>
+        PhpVersions.Any(v => v.Version == version) ? version : DefaultPhpVersion;
+
+    // PhpManifest (static, default version) for tests
     public static RuntimeComponentManifest PhpManifest => new(
-        "PHP", PhpVersion, PhpDownloadUrl, PhpSha256, PhpSizeLabel,
+        "PHP", DefaultPhpVersion,
+        PhpVersions[0].DownloadUrl, PhpVersions[0].Sha256, PhpVersions[0].SizeLabel,
         "https://windows.php.net/", "php/license.txt");
 
     public static RuntimeComponentManifest ApacheManifest => new(
@@ -67,17 +90,20 @@ public sealed class PhpRuntimeService
 
     public PhpRuntimeInstallation Resolve(AppSettings? settings = null)
     {
+        if (settings is not null && !string.IsNullOrWhiteSpace(settings.LocalServerPhpVersion))
+            SelectedPhpVersion = NormalizePhpVersion(settings.LocalServerPhpVersion);
         var phpDirectory = ResolvePhpDirectory(settings?.PhpRuntimePath) ??
                            (IsPhpInstalled ? PhpDirectory : null);
         var apacheRoot = ResolveApacheRoot(settings?.ApacheRuntimePath) ??
                          (IsApacheInstalled ? ApacheDirectory : null);
+        if (phpDirectory is not null) EnsureVcRuntime(phpDirectory);
         return new PhpRuntimeInstallation(
             phpDirectory,
             phpDirectory is null ? null : Path.Combine(phpDirectory, "php.exe"),
             phpDirectory is null ? null : Path.Combine(phpDirectory, "php-cgi.exe"),
             apacheRoot,
             apacheRoot is null ? null : FindHttpd(apacheRoot),
-            PhpVersion,
+            SelectedPhpVersion,
             ApacheVersion);
     }
 
@@ -132,6 +158,8 @@ public sealed class PhpRuntimeService
         bool includeApache = true,
         CancellationToken cancellationToken = default)
     {
+        if (settings is not null && !string.IsNullOrWhiteSpace(settings.LocalServerPhpVersion))
+            SelectedPhpVersion = NormalizePhpVersion(settings.LocalServerPhpVersion);
         if (!IsPhpInstalled)
             await InstallPhpAsync(progress, cancellationToken).ConfigureAwait(false);
         if (includeApache && !IsApacheInstalled)
@@ -142,8 +170,10 @@ public sealed class PhpRuntimeService
 
     public async Task InstallPhpAsync(IProgress<RuntimeInstallProgress>? progress = null, CancellationToken cancellationToken = default)
     {
-        if (IsPhpInstalled) return;
-        var archive = await DownloadAsync(PhpManifest, progress, cancellationToken).ConfigureAwait(false);
+        if (IsPhpInstalled) { EnsureVcRuntime(PhpDirectory); return; }
+        var manifest = new RuntimeComponentManifest("PHP", SelectedPhpManifest.Version, SelectedPhpManifest.DownloadUrl,
+            SelectedPhpManifest.Sha256, SelectedPhpManifest.SizeLabel, "https://windows.php.net/", "php/license.txt");
+        var archive = await DownloadAsync(manifest, progress, cancellationToken).ConfigureAwait(false);
         var staging = Path.Combine(RootDirectory, "php", ".staging-" + Guid.NewGuid().ToString("N"));
         try
         {
@@ -153,7 +183,8 @@ public sealed class PhpRuntimeService
             RequireFile(staging, "php8apache2_4.dll");
             RequireFile(staging, "ext");
             ReplaceDirectory(staging, PhpDirectory);
-            progress?.Report(new RuntimeInstallProgress("PHP", "done", 0.5, $"PHP {PhpVersion} siap."));
+            EnsureVcRuntime(PhpDirectory);
+            progress?.Report(new RuntimeInstallProgress("PHP", "done", 0.5, $"PHP {SelectedPhpVersion} siap."));
         }
         catch
         {
@@ -281,7 +312,7 @@ public sealed class PhpRuntimeService
             "=======================\r\n\r\n" +
             "Runtime ini diunduh dari sumber resmi dan diverifikasi SHA-256 oleh Depup Code.\r\n" +
             "Tidak ada installer, service Windows, atau perubahan PATH global.\r\n\r\n" +
-            $"PHP {PhpVersion}\r\n  Sumber: {PhpDownloadUrl}\r\n  SHA-256: {PhpSha256}\r\n  Lisensi: {Path.Combine(PhpDirectory, "license.txt")}\r\n\r\n" +
+            $"PHP {SelectedPhpVersion}\r\n  Sumber: {SelectedPhpManifest.DownloadUrl}\r\n  SHA-256: {SelectedPhpManifest.Sha256}\r\n  Lisensi: {Path.Combine(PhpDirectory, "license.txt")}\r\n\r\n" +
             $"Apache HTTP Server {ApacheVersion} (Apache Lounge Win64 VS17)\r\n  Sumber: {ApacheDownloadUrl}\r\n  SHA-256: {ApacheSha256}\r\n  Lisensi: {Path.Combine(ApacheDirectory, "LICENSE.txt")}\r\n\r\n" +
             "Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0\r\n" +
             "PHP License 3.01: https://www.php.net/license/3_01.txt\r\n");
@@ -300,6 +331,22 @@ public sealed class PhpRuntimeService
         Directory.CreateDirectory(parent);
         if (Directory.Exists(destination)) Directory.Delete(destination, true);
         Directory.Move(source, destination);
+    }
+
+    public static void EnsureVcRuntime(string phpDirectory)
+    {
+        try
+        {
+            var source = Path.Combine(AppContext.BaseDirectory, "Assets", "Runtime", "VcRedist");
+            if (!Directory.Exists(source)) source = Path.Combine(AppContext.BaseDirectory, "VcRedist");
+            if (!Directory.Exists(source) || !Directory.Exists(phpDirectory)) return;
+            foreach (var file in Directory.EnumerateFiles(source))
+            {
+                var destination = Path.Combine(phpDirectory, Path.GetFileName(file));
+                if (!File.Exists(destination)) File.Copy(file, destination, false);
+            }
+        }
+        catch { }
     }
 
     private static void TryDeleteDirectory(string path)

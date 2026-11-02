@@ -363,9 +363,9 @@
     <div class="flex items-center gap-2 shrink-0">
       <button id="headerNetworkModeBtn" type="button"
         class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold transition hover:brightness-110"
-        title="Klik untuk beralih antara Online Mode (Live Fetch) &amp; Offline Mode (IndexedDB Cache)">
+        title="Online mode mengambil katalog live; aksi cloud pada demo hanya simulasi lokal">
         <span id="headerNetworkDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="headerNetworkText">Online • Live Sync</span>
+        <span id="headerNetworkText">Online • Live Catalog</span>
       </button>
 
       <button id="headerQuickDeployBtn" type="button"
@@ -373,6 +373,8 @@
         <span>🚀</span>
         <span class="hidden sm:inline">Deploy</span>
       </button>
+      <a href="privacy.html" target="_blank" rel="noopener noreferrer"
+        class="px-2 py-1 text-[11px] text-depup-textSecondary hover:text-white">Privasi</a>
     </div>
   </header>
 
@@ -450,7 +452,7 @@
 
         <button type="button" data-nav="environment"
           class="activity-btn relative w-10 h-10 rounded-lg flex items-center justify-center text-depup-textMuted hover:text-white hover:bg-depup-surface transition"
-          title="Environment Variables &amp; DPAPI Secrets">
+          title="Environment Variables &amp; Sensitive Values">
           <span class="active-bar hidden absolute left-0 top-2 bottom-2 w-1 bg-depup-accent rounded-r"></span>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
             <path stroke-linecap="round" d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />
@@ -652,10 +654,10 @@
       <!-- Account Utility Button (Bottom Dock) -->
       <button id="footerAccountBtn" type="button"
         class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-depup-surface hover:bg-depup-surfaceHover border border-depup-borderLight text-slate-200 transition"
-        title="Akun Depup Cloud &amp; Sesi DPAPI">
+        title="Akun Depup Cloud &amp; Pengaturan">
         <span id="footerAccountAvatar"
           class="w-4 h-4 rounded-full bg-gradient-to-tr from-purple-500 to-pink-400 text-white text-[9.5px] font-bold flex items-center justify-center">M</span>
-        <span id="footerAccountName" class="hidden md:inline text-[11px] font-medium">Meledak Cik</span>
+        <span id="footerAccountName" class="hidden md:inline text-[11px] font-medium">Akun</span>
       </button>
 
       <!-- SETTINGS BUTTON (Moved to Bottom Navigation Bar / Footer per Requirement 3) -->
@@ -896,8 +898,8 @@
             path: 'Welcome.ts',
             folder: 'root',
             lang: 'TypeScript',
-            savedContent: '// ⚡ Depup Code v2.5 — Stitch Kawaii Cloud IDE & Offline-First Engine\n// Semua data di-cache secara dinamis di IndexedDB & LocalStorage.\n\nexport const depupConfig = {\n  gateway: "https://depup.cloud",\n  workspace: "deployone",\n  offlineFirst: {\n    engine: "IndexedDB + LocalStorage Fallback",\n    autoSyncQueue: true,\n    encryption: "DPAPI AES-256"\n  },\n  features: [\n    "Link Gaib HTTPS Reverse Tunnel",\n    "Railway & Depup Edge Auto-Fix",\n    "Stitch Pastel Kawaii Vector UI",\n    "Bottom Utility & Settings Bar"\n  ]\n};',
-            content: '// ⚡ Depup Code v2.5 — Stitch Kawaii Cloud IDE & Offline-First Engine\n// Semua data di-cache secara dinamis di IndexedDB & LocalStorage.\n\nexport const depupConfig = {\n  gateway: "https://depup.cloud",\n  workspace: "deployone",\n  offlineFirst: {\n    engine: "IndexedDB + LocalStorage Fallback",\n    autoSyncQueue: true,\n    encryption: "DPAPI AES-256"\n  },\n  features: [\n    "Link Gaib HTTPS Reverse Tunnel",\n    "Railway & Depup Edge Auto-Fix",\n    "Stitch Pastel Kawaii Vector UI",\n    "Bottom Utility & Settings Bar"\n  ]\n};'
+            savedContent: '// ⚡ Depup Code v2.5 — Stitch Kawaii Cloud IDE & Offline-First Engine\n// Semua data di-cache secara dinamis di IndexedDB & LocalStorage.\n\nexport const depupConfig = {\n  gateway: "https://depup.cloud",\n  workspace: "deployone",\n  offlineFirst: {\n    engine: "IndexedDB + LocalStorage Fallback",\n    autoSyncQueue: false,\n    storage: "Browser storage (not encrypted)"\n  },\n  features: [\n    "Link Gaib HTTPS Reverse Tunnel",\n    "Railway & Depup Edge Auto-Fix",\n    "Stitch Pastel Kawaii Vector UI",\n    "Bottom Utility & Settings Bar"\n  ]\n};',
+            content: '// ⚡ Depup Code v2.5 — Stitch Kawaii Cloud IDE & Offline-First Engine\n// Semua data di-cache secara dinamis di IndexedDB & LocalStorage.\n\nexport const depupConfig = {\n  gateway: "https://depup.cloud",\n  workspace: "deployone",\n  offlineFirst: {\n    engine: "IndexedDB + LocalStorage Fallback",\n    autoSyncQueue: false,\n    storage: "Browser storage (not encrypted)"\n  },\n  features: [\n    "Link Gaib HTTPS Reverse Tunnel",\n    "Railway & Depup Edge Auto-Fix",\n    "Stitch Pastel Kawaii Vector UI",\n    "Bottom Utility & Settings Bar"\n  ]\n};'
           },
           {
             path: 'capacitor.config.ts',
@@ -930,14 +932,14 @@
         ],
         settings: {
           depupCloudUrl: 'https://depup.cloud',
-          depupAccountName: 'Meledak Cik',
-          depupEmail: 'meledakcik@gmail.com',
-          depupConnected: true,
-          vercelToken: 'vcp_live_881290aabbccddeeff',
-          cloudflareAccountId: 'cf_acc_992817263',
-          cloudflareToken: 'cfp_token_77162534',
-          railwayToken: 'rw_live_5544332211ff',
-          githubToken: 'ghp_depup_99887766554433',
+          depupAccountName: '',
+          depupEmail: '',
+          depupConnected: false,
+          vercelToken: '',
+          cloudflareAccountId: '',
+          cloudflareToken: '',
+          railwayToken: '',
+          githubToken: '',
           defaultProjectsPath: 'C:\\Projek-Web',
           showMinimap: true,
           wordWrap: false,
@@ -1107,7 +1109,7 @@
         timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       };
       if (isEffectiveOnline()) {
-        appendDepupLog(`[ONLINE SYNC] ${summary} → disinkronkan ke ${state.settings.depupCloudUrl || 'https://depup.cloud'}`);
+        appendDepupLog(`[DEMO ACTION] ${summary} (simulasi lokal; tidak ada data yang dikirim)`);
         state.lastSyncTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       } else {
         state.syncQueue.push(entry);
@@ -1168,10 +1170,10 @@
         const count = state.syncQueue.length;
         state.syncQueue = [];
         await persistState('syncQueue');
-        appendDepupLog(`[SYNC FLUSH] ${count} perubahan offline dari IndexedDB berhasil dikirim ke Depup Cloud.`);
-        if (showNotification) showToast(`${count} antrean perubahan offline berhasil disinkronkan ke Cloud!`, 'emerald');
+        appendDepupLog(`[DEMO ACTION] ${count} perubahan lokal dibersihkan dari antrean simulasi; tidak ada data yang dikirim.`);
+        if (showNotification) showToast('Antrean simulasi dibersihkan; tidak ada data yang dikirim.', 'emerald');
       } else if (showNotification) {
-        showToast('Katalog live & cache IndexedDB telah disinkronkan!', 'emerald');
+        showToast('Katalog live dimuat dan cache lokal diperbarui.', 'emerald');
       }
 
       state.lastSyncTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -1271,7 +1273,7 @@
         if (online) {
           headerBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold transition hover:brightness-110';
           headerDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-          headerText.textContent = `Online • ${state.settings.depupAccountName || 'Meledak Cik'}`;
+          headerText.textContent = `Online • ${state.settings.depupAccountName || 'Demo'}`;
         } else {
           headerBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300 text-[11px] font-semibold transition hover:brightness-110';
           headerDot.className = 'w-2 h-2 rounded-full bg-amber-400';
@@ -1396,7 +1398,7 @@
               <div class="font-semibold text-xs text-white truncate">${escapeHtml(state.selectedEnvProject)}</div>
               <div class="flex items-center gap-1.5 mt-1 text-[10px] text-emerald-400">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span>DPAPI encrypted • IndexedDB</span>
+                <span>Browser storage • not encrypted</span>
               </div>
             </div>
           </div>
@@ -1437,7 +1439,7 @@
           { id: 'linkgaib', label: 'Link Gaib & Edge Tunnels', badge: 'Gateway', group: 'DEVELOPER TOOLS' },
           { id: 'github', label: 'Git & Source Control', badge: state.settings.githubToken ? 'PAT Active' : 'Empty', group: 'DEVELOPER TOOLS' },
           { id: 'offline', label: 'Offline-First & Cache DB', badge: 'IndexedDB', group: 'SECURITY & CACHE' },
-          { id: 'security', label: 'Security & DPAPI Keystore', badge: 'AES-256', group: 'SECURITY & CACHE' }
+          { id: 'security', label: 'Security & Browser Storage', badge: 'Local only', group: 'SECURITY & CACHE' }
         ];
         const q = state.settingsSearch.trim().toLowerCase();
         const filtered = items.filter((it) => !q || it.label.toLowerCase().includes(q) || it.group.toLowerCase().includes(q));
@@ -1733,13 +1735,13 @@
           <div class="stitch-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <div class="w-20 h-16 rounded-xl overflow-hidden border border-purple-400/40 shrink-0 aspect-[4/3] bg-depup-surface">
-                <img src="${secImg}" alt="Stitch DPAPI Vault" loading="lazy" class="stitch-img w-full h-full object-cover aspect-[4/3]" onerror="window.handleImgFallback(this, 'security')" />
+                <img src="${secImg}" alt="Stitch browser storage" loading="lazy" class="stitch-img w-full h-full object-cover aspect-[4/3]" onerror="window.handleImgFallback(this, 'security')" />
               </div>
               <div>
                 <div class="flex items-center gap-2.5 flex-wrap">
-                  <h1 class="text-xl font-bold text-white">Environment &amp; DPAPI Secrets</h1>
-                  <span class="px-2.5 py-0.5 rounded-md bg-depup-surface border border-purple-500/40 text-[10px] font-mono font-bold text-depup-pastelViolet">DPAPI WINDOWS · v2.5</span>
-                  <span class="px-2.5 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-mono font-semibold text-emerald-300">AES-256 Protected</span>
+                  <h1 class="text-xl font-bold text-white">Environment &amp; Sensitive Values</h1>
+                  <span class="px-2.5 py-0.5 rounded-md bg-depup-surface border border-purple-500/40 text-[10px] font-mono font-bold text-depup-pastelViolet">LOCAL BROWSER STORAGE · NOT ENCRYPTED</span>
+                  <span class="px-2.5 py-0.5 rounded-md bg-amber-950/80 border border-amber-500/40 text-[10px] font-mono font-semibold text-amber-300">Not encrypted</span>
                 </div>
                 <p class="text-xs text-depup-textMuted mt-1">
                   Kelola variabel dan secrets per project. Nilai sensitif dienkripsi lokal dan di-cache secara Offline-First di IndexedDB.
@@ -1798,9 +1800,9 @@
                     <tr class="bg-[#140E28] border-b border-depup-border text-[10px] font-mono font-bold text-depup-textMuted uppercase">
                       <th class="py-3 px-3 w-10 text-center">✓</th>
                       <th class="py-3 px-3">NAMA VARIABEL</th>
-                      <th class="py-3 px-3">NILAI (DPAPI MASKED)</th>
+                      <th class="py-3 px-3">NILAI (MASKED IN UI)</th>
                       <th class="py-3 px-3">TARGET</th>
-                      <th class="py-3 px-3">TYPE / ENCRYPTION</th>
+                      <th class="py-3 px-3">TYPE / STORAGE</th>
                       <th class="py-3 px-3 text-right">UPDATED</th>
                     </tr>
                   </thead>
@@ -1826,7 +1828,7 @@
                         </td>
                         <td class="py-2.5 px-3">
                           <button type="button" data-env-toggle-type="${escapeHtml(item.id)}" class="px-2.5 py-0.5 rounded border font-mono text-[10px] font-semibold ${item.isSecret ? 'bg-purple-950/80 border-purple-500/50 text-depup-pastelViolet' : 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'}">
-                            ${item.isSecret ? '🔒 DPAPI AES-256' : '🌐 Public Config'}
+                            ${item.isSecret ? '🔒 Masked in UI only' : '🌐 Public Config'}
                           </button>
                         </td>
                         <td class="py-2.5 px-3 text-right font-mono text-[11px] text-depup-textMuted">${escapeHtml(item.updatedAt)}</td>
@@ -1872,7 +1874,7 @@
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
                   <h1 class="text-xl font-bold text-white">Platform Integrations &amp; Cloud Tokens</h1>
-                  <span class="px-2.5 py-0.5 rounded-md bg-purple-950/90 border border-purple-500/40 text-[10px] font-mono font-bold text-depup-pastelViolet">DPAPI · SECURE</span>
+                  <span class="px-2.5 py-0.5 rounded-md bg-purple-950/90 border border-purple-500/40 text-[10px] font-mono font-bold text-depup-pastelViolet">BROWSER STORAGE · NOT ENCRYPTED</span>
                 </div>
                 <p class="text-xs text-depup-textMuted mt-1">
                   Diakses melalui <strong>Bottom Utility Bar</strong>. Semua kredensial provider dienkripsi dan disimpan secara Offline-First di IndexedDB.
@@ -1885,7 +1887,7 @@
           <div class="flex flex-wrap items-center gap-2.5">
             <input id="mainSettingsSearchInput" type="text" value="${escapeHtml(state.settingsSearch)}" class="depup-input w-72" placeholder="Filter platform token atau provider..." />
             <span class="px-2.5 py-1 rounded-md bg-depup-surface border border-depup-borderLight font-mono text-[10.5px] text-depup-pastelViolet">5 PROVIDERS</span>
-            <span class="px-2.5 py-1 rounded-md bg-emerald-950/70 border border-emerald-500/40 font-mono text-[10.5px] text-emerald-300">LOCAL ENCRYPTION ON</span>
+            <span class="px-2.5 py-1 rounded-md bg-amber-950/70 border border-amber-500/40 font-mono text-[10.5px] text-amber-300">LOCAL STORAGE ONLY · NOT ENCRYPTED</span>
           </div>
 
           ${showCard('linkgaib', 'depup cloud gateway google login session token link gaib') || sec === 'overview' ? `
@@ -2017,7 +2019,7 @@
             </div>
           ` : ''}
 
-          ${showCard('offline', 'offline first indexeddb localstorage cache sync queue') || showCard('security', 'security dpapi keystore') ? `
+          ${showCard('offline', 'offline first indexeddb localstorage cache sync queue') || showCard('security', 'security local browser storage') ? `
             <div class="stitch-card p-5 border-l-4 border-l-pink-400 space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
@@ -2603,9 +2605,9 @@
                 </select>
               </div>
               <div>
-                <label class="block text-[10px] font-mono font-bold text-depup-textMuted uppercase mb-1">ENKRIPSI DPAPI</label>
+                <label class="block text-[10px] font-mono font-bold text-depup-textMuted uppercase mb-1">SENSITIVITAS (TAMPILAN)</label>
                 <select id="modalEnvSecret" class="depup-input w-full">
-                  <option value="true" ${!editItem || editItem.isSecret ? 'selected' : ''}>Secret (DPAPI AES-256)</option>
+                  <option value="true" ${!editItem || editItem.isSecret ? 'selected' : ''}>Sensitive (masked in UI, not encrypted)</option>
                   <option value="false" ${editItem && !editItem.isSecret ? 'selected' : ''}>Public Config</option>
                 </select>
               </div>
@@ -2687,7 +2689,7 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
           <div class="max-h-64 overflow-y-auto space-y-1 text-xs">
             <button type="button" data-palette-nav="projects" class="sidebar-nav-item"><span>❐ Projects &amp; Workspaces Hub</span><span class="font-mono text-[10px] text-depup-textDim">View</span></button>
             <button type="button" data-palette-nav="domains" class="sidebar-nav-item"><span>🌐 Domains &amp; URLs Manager</span><span class="font-mono text-[10px] text-depup-textDim">View</span></button>
-            <button type="button" data-palette-nav="environment" class="sidebar-nav-item"><span>🔐 Environment Variables &amp; DPAPI Secrets</span><span class="font-mono text-[10px] text-depup-textDim">View</span></button>
+            <button type="button" data-palette-nav="environment" class="sidebar-nav-item"><span>Environment Variables &amp; Sensitive Values</span><span class="font-mono text-[10px] text-depup-textDim">View</span></button>
             <button type="button" data-palette-nav="editor" class="sidebar-nav-item"><span>📝 Code Editor &amp; File Explorer</span><span class="font-mono text-[10px] text-depup-textDim">Ctrl+Shift+E</span></button>
             <button type="button" data-palette-nav="deploy" class="sidebar-nav-item"><span>🚀 Run &amp; Deploy Pipeline</span><span class="font-mono text-[10px] text-depup-textDim">View</span></button>
             <button type="button" data-palette-nav="linkgaib" class="sidebar-nav-item"><span>📡 Link Gaib HTTPS Tunnel</span><span class="font-mono text-[10px] text-depup-textDim">View</span></button>
@@ -2729,7 +2731,7 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
         appendTerminalLine(`[DEPUP CLOUD] Gateway  : ${state.settings.depupCloudUrl} (${isEffectiveOnline() ? 'ONLINE - LIVE SYNC' : 'OFFLINE - INDEXEDDB CACHE'})`);
         appendTerminalLine(`[AUTH]        Account  : ${state.settings.depupAccountName} <${state.settings.depupEmail}>`);
         appendTerminalLine(`[LINK GAIB]   Tunnel   : ${state.tunnelActive ? 'ACTIVE -> ' + state.tunnelUrl + ' (localhost:' + state.tunnelPort + ')' : 'Idle'}`);
-        appendTerminalLine(`[CACHE DB]    Queue    : ${state.syncQueue.length} pending offline mutations | ${state.envVars.length} encrypted env vars`);
+        appendTerminalLine(`[CACHE DB]    Queue    : ${state.syncQueue.length} demo actions | ${state.envVars.length} locally stored env vars (not encrypted)`);
         return;
       }
 
@@ -2860,13 +2862,13 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
           }
           if (action === 'save-env-local') {
             await persistState('envVars');
-            showToast('Environment variables disimpan terenkripsi ke IndexedDB lokal!', 'emerald');
+            showToast('Environment variables disimpan di browser lokal tanpa enkripsi.', 'amber');
             return;
           }
           if (action === 'sync-env-cloud') {
             await persistState('envVars');
             await queueOrSyncAction('env_sync', `Sync ${state.envVars.filter(x => x.project === state.selectedEnvProject).length} env vars (${state.selectedEnvProject})`);
-            showToast('Environment variables disimpan & disinkronkan!', 'emerald');
+            showToast('Aksi sinkronisasi simulasi dicatat; tidak ada data yang dikirim.', 'emerald');
             return;
           }
           if (action === 'save-settings') {
@@ -2878,16 +2880,16 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
             const cft = document.getElementById('settingCfToken');
             const gh = document.getElementById('settingGithubToken');
             if (u) state.settings.depupCloudUrl = u.value.trim() || 'https://depup.cloud';
-            if (a) state.settings.depupAccountName = a.value.trim() || 'Meledak Cik';
+            if (a) state.settings.depupAccountName = a.value.trim();
             if (rw) state.settings.railwayToken = rw.value.trim();
             if (vc) state.settings.vercelToken = vc.value.trim();
             if (cfa) state.settings.cloudflareAccountId = cfa.value.trim();
             if (cft) state.settings.cloudflareToken = cft.value.trim();
             if (gh) state.settings.githubToken = gh.value.trim();
             await persistState('settings');
-            await queueOrSyncAction('settings_save', 'Update konfigurasi & token provider DPAPI');
+            await queueOrSyncAction('settings_save', 'Update konfigurasi lokal dan token provider');
             renderAll();
-            showToast('Konfigurasi & Token Provider disimpan terenkripsi ke IndexedDB!', 'emerald');
+            showToast('Konfigurasi & token tersimpan di browser lokal tanpa enkripsi.', 'amber');
             return;
           }
           if (action === 'new-file') {
@@ -3038,7 +3040,7 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
             item.isRevealed = !item.isSecret;
             await persistState('envVars');
             renderAll();
-            showToast(`${item.name} diubah ke ${item.isSecret ? 'DPAPI Secret' : 'Public Config'}.`, 'emerald');
+            showToast(`${item.name} diubah ke ${item.isSecret ? 'Sensitive (masked in UI only)' : 'Public Config'}.`, 'emerald');
           }
           return;
         }
@@ -3558,7 +3560,7 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
 
       const steps = [
         { pct: 35, msg: 'Stage 1 & 2: Source Checkout & Dependencies selesai.' },
-        { pct: 65, msg: 'Stage 3: Compatibility & DPAPI Secrets terverifikasi.' },
+        { pct: 65, msg: 'Stage 3: Compatibility & local settings checked (demo).' },
         { pct: 85, msg: 'Stage 4: Building production bundle...' },
         { pct: 100, msg: `✓ Deployed! Live di https://${state.deployProjectName}.depup.cloud` }
       ];
@@ -3600,6 +3602,21 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
       state.envVars = await offlineStore.get('envVars', seed.envVars);
       state.files = await offlineStore.get('files', seed.files);
       state.settings = await offlineStore.get('settings', seed.settings);
+      const demoCredentialPatterns = {
+        depupEmail: /^meledakcik@gmail\.com$/i,
+        vercelToken: /^vcp_live_[a-f0-9]+$/i,
+        cloudflareAccountId: /^cf_acc_[a-f0-9]+$/i,
+        cloudflareToken: /^cfp_token_[a-f0-9]+$/i,
+        railwayToken: /^rw_live_[a-f0-9]+$/i,
+        githubToken: /^ghp_depup_[a-f0-9]+$/i
+      };
+      for (const [key, pattern] of Object.entries(demoCredentialPatterns)) {
+        if (pattern.test(state.settings[key] || '')) state.settings[key] = '';
+      }
+      if (state.settings.depupAccountName === 'Meledak Cik' || !state.settings.depupEmail) {
+        state.settings.depupAccountName = '';
+        state.settings.depupConnected = false;
+      }
       state.syncQueue = await offlineStore.get('syncQueue', seed.syncQueue);
       await persistState('all');
 
@@ -3612,7 +3629,7 @@ WEBHOOK_SIGNING_SECRET=whsec_998877665544332211</textarea>
       appendDepupLog('Depup Cloud Offline-First Engine siap.');
 
       navigateTo('domains');
-      fetchLiveOrCachedData(false);
+      await fetchLiveOrCachedData(false);
     });
   </script>
 </body>
