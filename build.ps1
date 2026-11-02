@@ -63,7 +63,70 @@ try {
         throw "Publish output still requires a shared .NET framework. No release package was verified."
     }
 
+    $projectFile = Join-Path $projectRoot "DepupCode\DepupCode.csproj"
+    [xml]$project = Get-Content -LiteralPath $projectFile -Raw
+    $appVersion = $project.Project.PropertyGroup.Version | Select-Object -First 1
+    if ([string]::IsNullOrWhiteSpace($appVersion) -or $appVersion -notmatch '^[A-Za-z0-9.-]+$') {
+        throw "Could not determine a safe release version from $projectFile."
+    }
+
+    $releaseDirectory = Join-Path $projectRoot "artifacts\release"
+    $packageDirectory = Join-Path $releaseDirectory ".staging-$PID"
+    $archivePath = Join-Path $releaseDirectory "DepupCode-v$($appVersion)-$Runtime.zip"
+    $temporaryArchivePath = "$archivePath.tmp"
+    New-Item -ItemType Directory -Path $releaseDirectory -Force | Out-Null
+    if (Test-Path -LiteralPath $packageDirectory) {
+        Remove-Item -LiteralPath $packageDirectory -Recurse -Force
+    }
+    if (Test-Path -LiteralPath $temporaryArchivePath) {
+        Remove-Item -LiteralPath $temporaryArchivePath -Force
+    }
+
+    try {
+        New-Item -ItemType Directory -Path $packageDirectory -Force | Out-Null
+        Get-ChildItem -LiteralPath $publishDirectory -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $packageDirectory -Recurse -Force
+        }
+        Copy-Item -LiteralPath (Join-Path $projectRoot "README.md"), (Join-Path $projectRoot "PRIVACY.md") `
+            -Destination $packageDirectory -Force
+
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::CreateFromDirectory(
+            $packageDirectory,
+            $temporaryArchivePath,
+            [System.IO.Compression.CompressionLevel]::Optimal,
+            $false)
+        $archive = [System.IO.Compression.ZipFile]::OpenRead($temporaryArchivePath)
+        try {
+            $archiveEntries = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
+            $requiredArchiveEntries = @($requiredFiles | ForEach-Object { $_.Replace('\', '/') }) + @("README.md", "PRIVACY.md")
+            $missingArchiveEntries = @($requiredArchiveEntries | Where-Object { $archiveEntries -notcontains $_ })
+            if ($missingArchiveEntries.Count -gt 0) {
+                throw "Release ZIP is missing required files: $($missingArchiveEntries -join ', ')."
+            }
+            $executableEntry = $archive.GetEntry("DepupCode.exe")
+            if ($null -eq $executableEntry -or $executableEntry.Length -le 0) {
+                throw "Release ZIP does not contain a valid DepupCode.exe."
+            }
+        }
+        finally {
+            $archive.Dispose()
+        }
+
+        Move-Item -LiteralPath $temporaryArchivePath -Destination $archivePath -Force
+    }
+    finally {
+        if (Test-Path -LiteralPath $packageDirectory) {
+            Remove-Item -LiteralPath $packageDirectory -Recurse -Force
+        }
+        if (Test-Path -LiteralPath $temporaryArchivePath) {
+            Remove-Item -LiteralPath $temporaryArchivePath -Force
+        }
+    }
+
+    $archiveSizeMb = [Math]::Round((Get-Item -LiteralPath $archivePath).Length / 1MB, 2)
     Write-Host "Verified self-contained Depup Code at $publishDirectory"
+    Write-Host "Release ZIP: $archivePath ($archiveSizeMb MB)"
 }
 finally {
     Pop-Location
