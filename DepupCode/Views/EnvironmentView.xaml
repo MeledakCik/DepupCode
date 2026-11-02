@@ -1,0 +1,324 @@
+<UserControl x:Class="DepupCode.Views.EnvironmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ThemeEditorBrush}">
+  <UserControl.Resources>
+    <Style x:Key="EnvironmentGridHeader" TargetType="{x:Type DataGridColumnHeader}">
+      <Setter Property="Background" Value="{DynamicResource ThemeActivityBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeSeparatorBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="Padding" Value="9,8"/>
+      <Setter Property="FontSize" Value="8"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+    <Style x:Key="EnvironmentGridCell" TargetType="{x:Type DataGridCell}">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeSeparatorBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="Padding" Value="8,4"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    </Style>
+    <Style x:Key="EnvironmentGridRow" TargetType="{x:Type DataGridRow}">
+      <Setter Property="Background" Value="{DynamicResource ThemeTitleBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeSeparatorBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Style.Triggers>
+        <Trigger Property="AlternationIndex" Value="1">
+          <Setter Property="Background" Value="{DynamicResource ThemePanelBrush}"/>
+        </Trigger>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="{DynamicResource ThemeActiveNavBrush}"/>
+        </Trigger>
+        <Trigger Property="IsSelected" Value="True">
+          <Setter Property="Background" Value="{DynamicResource ThemeActiveSurfaceBrush}"/>
+          <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="EnvironmentGridText" TargetType="{x:Type TextBlock}">
+      <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+      <Setter Property="TextWrapping" Value="NoWrap"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="EnvironmentDataGrid" TargetType="{x:Type DataGrid}">
+      <Setter Property="Background" Value="{DynamicResource ThemeEditorBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="GridLinesVisibility" Value="None"/>
+      <Setter Property="HeadersVisibility" Value="Column"/>
+      <Setter Property="RowHeaderWidth" Value="0"/>
+      <Setter Property="RowHeight" Value="42"/>
+      <Setter Property="AlternationCount" Value="2"/>
+      <Setter Property="CanUserAddRows" Value="False"/>
+      <Setter Property="CanUserResizeRows" Value="False"/>
+      <Setter Property="SelectionMode" Value="Extended"/>
+      <Setter Property="SelectionUnit" Value="FullRow"/>
+      <Setter Property="ColumnHeaderStyle" Value="{StaticResource EnvironmentGridHeader}"/>
+      <Setter Property="CellStyle" Value="{StaticResource EnvironmentGridCell}"/>
+      <Setter Property="RowStyle" Value="{StaticResource EnvironmentGridRow}"/>
+      <Setter Property="FontSize" Value="10"/>
+    </Style>
+    <Style x:Key="EnvironmentFilterButton" TargetType="{x:Type Button}">
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="9,3"/>
+      <Setter Property="Height" Value="27"/>
+      <Setter Property="FontSize" Value="9"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="FilterBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="FilterBorder" Property="Background" Value="{DynamicResource ThemeActiveNavBrush}"/>
+                <Setter TargetName="FilterBorder" Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="FilterBorder" Property="Opacity" Value="0.9"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="FilterBorder" Property="Opacity" Value="0.55"/>
+                <Setter Property="Cursor" Value="Arrow"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="EnvironmentCellActionButton" TargetType="{x:Type Button}">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeDimBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Width" Value="22"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ActionBorder" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ActionBorder" Property="Background" Value="{DynamicResource ThemeActiveNavBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemeSoftBrush}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="ActionBorder" Property="Opacity" Value="0.9"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="EnvironmentTypeButton" TargetType="{x:Type Button}">
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Height" Value="25"/>
+      <Setter Property="Background" Value="{DynamicResource ThemeActiveSurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeAccentSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="6,2"/>
+      <Setter Property="FontSize" Value="8"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="TypeBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="TypeBorder" Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="TypeBorder" Property="Opacity" Value="0.9"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="TypeBorder" Property="Opacity" Value="0.55"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsSecret}" Value="False">
+          <Setter Property="Background" Value="#0F2A22"/>
+          <Setter Property="Foreground" Value="#34D399"/>
+          <Setter Property="BorderBrush" Value="#1E5A45"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid Background="{DynamicResource ThemeEditorBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="30"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1" Padding="14,0">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Ellipse Width="6" Height="6" Fill="#34D399" Margin="0,0,6,0" VerticalAlignment="Center"/>
+          <TextBlock Text="DPAPI Encrypted Store" Foreground="#34D399" FontSize="8.5" FontWeight="SemiBold"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="Depup Code" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9"/>
+          <TextBlock Text="  ›  Workspace  ›  Environment (DPAPI Managed)" Foreground="#A79FC7" FontSize="9" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <StackPanel Grid.Row="1" Margin="18,13,18,10">
+      <DockPanel>
+        <Border DockPanel.Dock="Right" Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="#4B3A93" BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="12,2,0,0" VerticalAlignment="Top">
+          <TextBlock Text="DPAPI WINDOWS · v2.4" Foreground="#C4B5FD" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+        </Border>
+        <TextBlock Text="Environment" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemePrimaryBrush}"/>
+      </DockPanel>
+      <TextBlock Text="Kelola variabel dan secrets per project. Nilai sensitif dienkripsi lokal dengan Windows DPAPI dan dapat disinkronkan ke Depup Cloud."
+                 Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+      <WrapPanel Margin="0,10,0,0">
+        <Button Content="Import .env" Click="ImportDotEnv_Click" Margin="0,0,7,5" Padding="9,4" FontSize="9"/>
+        <Button x:Name="ToggleSecretsButton" Content="Buka Semua Nilai" Click="ToggleAllSecrets_Click" Margin="0,0,7,5" Padding="9,4" FontSize="9"/>
+        <Button Content="Hapus Pilihan" Click="Remove_Click" Margin="0,0,7,5" Padding="9,4" FontSize="9"/>
+        <Button Content="＋  Tambah variabel" Style="{StaticResource PrimaryButton}" Click="Add_Click" Margin="0,0,7,5" Padding="10,4" FontSize="9.5"/>
+      </WrapPanel>
+    </StackPanel>
+
+    <WrapPanel Grid.Row="2" Margin="18,0,18,10" VerticalAlignment="Center">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,5">
+        <TextBlock Text="Project:" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9" VerticalAlignment="Center" Margin="0,0,7,0"/>
+        <ComboBox x:Name="ProjectBox" Width="235" MaxWidth="300" Height="29" Padding="8,0,24,0"
+                  SelectedValuePath="Key" SelectionChanged="Project_Changed"
+                  ToolTip="{Binding SelectedValue, RelativeSource={RelativeSource Self}}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                         HorizontalAlignment="Stretch" ToolTip="{Binding Key}"/>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,0,12,5">
+        <Button x:Name="AllFilterButton" Tag="all" Click="FilterButton_Click" Style="{StaticResource EnvironmentFilterButton}">
+          <StackPanel Orientation="Horizontal"><TextBlock Text="Semua ("/><TextBlock x:Name="TotalCountText" Text="0"/><TextBlock Text=")"/></StackPanel>
+        </Button>
+        <Button x:Name="SecretFilterButton" Tag="secret" Click="FilterButton_Click" Style="{StaticResource EnvironmentFilterButton}" Margin="4,0,0,0">
+          <StackPanel Orientation="Horizontal"><TextBlock Text="Secrets ("/><TextBlock x:Name="SecretsCountText" Text="0"/><TextBlock Text=")"/></StackPanel>
+        </Button>
+        <Button x:Name="PublicFilterButton" Tag="public" Click="FilterButton_Click" Style="{StaticResource EnvironmentFilterButton}" Margin="4,0,0,0">
+          <StackPanel Orientation="Horizontal"><TextBlock Text="Public ("/><TextBlock x:Name="PublicCountText" Text="0"/><TextBlock Text=")"/></StackPanel>
+        </Button>
+      </StackPanel>
+      <Border Background="#0F2A22" BorderBrush="#1E5A45" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,12,5">
+        <TextBlock Text="DPAPI Managed" Foreground="#34D399" FontSize="8" FontWeight="Bold"/>
+      </Border>
+      <Border Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="6" Width="230" MinWidth="205" Height="29" Margin="0,0,0,5">
+        <Grid>
+          <TextBox x:Name="EnvironmentSearchBox" TextChanged="EnvironmentSearch_TextChanged" Background="Transparent" Foreground="{DynamicResource ThemeSoftBrush}"
+                   BorderThickness="0" Padding="27,0,7,0" FontSize="9.5" VerticalContentAlignment="Center" ToolTip="Filter by variable name, category, or target"/>
+          <TextBlock Text="⌕" Foreground="{DynamicResource ThemeDimBrush}" FontSize="14" Margin="8,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+          <TextBlock Text="Filter nama, kategori, atau target…" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" Margin="27,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding Text, ElementName=EnvironmentSearchBox}" Value="">
+                    <Setter Property="Visibility" Value="Visible"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
+        </Grid>
+      </Border>
+    </WrapPanel>
+
+    <Border Grid.Row="3" Margin="18,0,18,10" Background="{DynamicResource ThemeTitleBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="1" CornerRadius="7" ClipToBounds="True">
+      <Grid>
+        <DataGrid x:Name="VariablesGrid" Style="{StaticResource EnvironmentDataGrid}" AutoGenerateColumns="False" IsReadOnly="False"
+                  MinHeight="140" HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.CanContentScroll="True" EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                  CellEditEnding="VariablesGrid_CellEditEnding">
+          <DataGrid.Columns>
+            <DataGridTemplateColumn Width="34" MinWidth="34">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="NAMA VARIABEL" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                Width="1.2*" MinWidth="115" ElementStyle="{StaticResource EnvironmentGridText}"/>
+            <DataGridTemplateColumn Header="NILAI (DPAPI MASKED)" Width="2.2*" MinWidth="210">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Border Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="5" Padding="7,3" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding DisplayValue}" Foreground="{DynamicResource ThemeSecondaryBrush}" FontFamily="JetBrains Mono, Cascadia Code, Consolas" FontSize="9"
+                                 TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="4,0,0,0">
+                      <Button Content="◉" Style="{StaticResource EnvironmentCellActionButton}" Click="ToggleReveal_Click" ToolTip="Reveal or mask value"/>
+                      <Button Content="⧉" Style="{StaticResource EnvironmentCellActionButton}" Click="CopyValue_Click" ToolTip="Copy value"/>
+                      <Button Content="✎" Style="{StaticResource EnvironmentCellActionButton}" Click="EditValue_Click" ToolTip="Edit value"/>
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="TARGET" Binding="{Binding Target, UpdateSourceTrigger=PropertyChanged}"
+                                Width="0.85*" MinWidth="92" ElementStyle="{StaticResource EnvironmentGridText}"/>
+            <DataGridTemplateColumn Header="TYPE / ENCRYPTION" Width="1.05*" MinWidth="110">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Button Content="{Binding TypeLabel}" Style="{StaticResource EnvironmentTypeButton}" Click="ToggleSecret_Click" ToolTip="Click to switch between secret and public config"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="UPDATED" Binding="{Binding UpdatedAt, StringFormat='{}{0:HH:mm}'}" IsReadOnly="True"
+                                Width="76" MinWidth="70" ElementStyle="{StaticResource EnvironmentGridText}"/>
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <Border x:Name="EmptyStatePanel" Background="{DynamicResource ThemeTitleBrush}" Visibility="Collapsed">
+          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="340">
+            <TextBlock Text="◇" Foreground="{DynamicResource ThemeAccentBrush}" FontSize="26" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="EmptyStateText" Text="Belum ada environment variable untuk project ini." Foreground="{DynamicResource ThemeSoftBrush}" FontSize="12"
+                       FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,7,0,0"/>
+            <Button Content="＋  Tambah variabel" Style="{StaticResource PrimaryButton}" Click="Add_Click" HorizontalAlignment="Center" Margin="0,11,0,0" Padding="12,5"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="4" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,1,0,0" Padding="14,7">
+      <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0">
+          <Button Content="Simpan lokal" Click="Save_Click" Margin="0,0,7,0" Padding="10,4" FontSize="9.5"/>
+          <Button Content="Simpan &amp; Sinkronkan" Tag="RequiresCloud" Style="{StaticResource PrimaryButton}" Click="SyncSave_Click" Padding="11,4" FontSize="9.5"/>
+        </StackPanel>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock x:Name="StatusText" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="DPAPI encrypts secrets locally before they are stored." Foreground="{DynamicResource ThemeDimBrush}" FontSize="8" Margin="0,2,0,0"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

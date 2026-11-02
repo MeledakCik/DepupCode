@@ -1,0 +1,69 @@
+<Window x:Class="DepupCode.Views.CommandPaletteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        Width="760" Height="486" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Title="Depup Code">
+  <Border Background="#120B22" BorderBrush="#3A2760" BorderThickness="1" CornerRadius="10" MouseLeftButtonDown="Drag">
+    <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="32" ShadowDepth="10" Opacity="0.6"/></Border.Effect>
+    <Grid>
+      <Grid.RowDefinitions><RowDefinition Height="52"/><RowDefinition Height="1"/><RowDefinition Height="*"/><RowDefinition Height="28"/></Grid.RowDefinitions>
+      <Grid Grid.Row="0" Margin="14,0">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="26"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+        <TextBlock Text="⌕" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="20" VerticalAlignment="Center"/>
+        <TextBox x:Name="QueryBox" Grid.Column="1" BorderThickness="0" Background="Transparent" FontSize="15" VerticalContentAlignment="Center"
+                 Padding="0" TextChanged="Query_Changed" PreviewKeyDown="Query_PreviewKeyDown"/>
+        <Border Grid.Column="2" Background="#241838" BorderBrush="#3A2760" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+          <TextBlock x:Name="ModeLabel" Text="FILES" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontFamily="Cascadia Code, Consolas" FontSize="9" FontWeight="Bold"/>
+        </Border>
+      </Grid>
+      <Border Grid.Row="1" Background="#3A2760"/>
+      <ListBox x:Name="Results" Grid.Row="2" Background="Transparent" BorderThickness="0" Padding="6"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled" MouseDoubleClick="Results_DoubleClick">
+        <ListBox.ItemContainerStyle>
+          <Style TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,1"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                  <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="9,7">
+                    <ContentPresenter/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#1E1435"/></Trigger>
+                    <Trigger Property="IsSelected" Value="True"><Setter TargetName="Bd" Property="Background" Value="#2A1B4D"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="34"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <Border Width="22" Height="22" CornerRadius="5" Background="#1E1435" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Glyph}" Foreground="{Binding GlyphBrush}" FontFamily="Cascadia Code, Consolas" FontSize="9" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="12.5" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding Subtitle}" Foreground="#7C6FA3" FontFamily="Cascadia Code, Consolas" FontSize="10" TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+              <Border Grid.Column="2" Background="#1E1435" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="10,0,0,0">
+                <TextBlock Text="{Binding Shortcut}" Foreground="#94A3B8" FontFamily="Cascadia Code, Consolas" FontSize="9"/>
+              </Border>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+      <Border Grid.Row="3" Background="#0E081B" CornerRadius="0,0,10,10">
+        <DockPanel Margin="14,0">
+          <TextBlock DockPanel.Dock="Right" Text="↑↓ pilih   ↵ buka   esc tutup" Foreground="#64748B" FontSize="9.5" VerticalAlignment="Center"/>
+          <TextBlock x:Name="CountText" Foreground="#64748B" FontSize="9.5" VerticalAlignment="Center"/>
+        </DockPanel>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

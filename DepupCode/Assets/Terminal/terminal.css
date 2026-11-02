@@ -1,0 +1,21 @@
+html, body, #terminal {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #1e1e1e;
+}
+
+body {
+  padding: 0;
+  color-scheme: dark;
+}
+
+#terminal {
+  box-sizing: border-box;
+  padding: 7px 9px;
+}
+
+.xterm {
+  height: 100%;
+}

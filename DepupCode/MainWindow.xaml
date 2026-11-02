@@ -1,0 +1,1808 @@
+<Window x:Class="DepupCode.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:models="clr-namespace:DepupCode.Models"
+        xmlns:controls="clr-namespace:DepupCode.Controls"
+        xmlns:views="clr-namespace:DepupCode.Views"
+        xmlns:local="clr-namespace:DepupCode"
+        Title="Depup Code" Icon="pack://application:,,,/Assets/depup.png" Width="1600" Height="960" MinWidth="680" MinHeight="420"
+        WindowStyle="None" ResizeMode="CanResize" Background="{DynamicResource ThemeWindowBrush}" Foreground="{DynamicResource ThemePrimaryBrush}"
+        Loaded="Window_Loaded" Closing="Window_Closing"
+        PreviewKeyDown="Window_PreviewKeyDown" PreviewMouseWheel="Window_PreviewMouseWheel"
+        KeyDown="Window_KeyDown"
+        SizeChanged="Window_SizeChanged" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged">
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="38" CornerRadius="12" GlassFrameThickness="0"
+                        ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+  </shell:WindowChrome.WindowChrome>
+  <Window.Resources>
+    <FontFamily x:Key="Mono">JetBrains Mono, Cascadia Mono, Cascadia Code, Consolas, Segoe UI Symbol</FontFamily>
+    <SolidColorBrush x:Key="ThemeWindowBrush" Color="#0C0A17"/>
+    <SolidColorBrush x:Key="ThemeTitleBrush" Color="#0F0B1E"/>
+    <SolidColorBrush x:Key="ThemeActivityBrush" Color="#0F0A1C"/>
+    <SolidColorBrush x:Key="ThemeSidebarBrush" Color="#140C26"/>
+    <SolidColorBrush x:Key="ThemePanelBrush" Color="#120F24"/>
+    <SolidColorBrush x:Key="ThemeEditorBrush" Color="#0D0718"/>
+    <SolidColorBrush x:Key="ThemeTerminalBrush" Color="#090410"/>
+    <SolidColorBrush x:Key="ThemeSurfaceBrush" Color="#1C1736"/>
+    <SolidColorBrush x:Key="ThemeHoverBrush" Color="#251F47"/>
+    <SolidColorBrush x:Key="ThemeInputBrush" Color="#100A20"/>
+    <SolidColorBrush x:Key="ThemeBorderBrush" Color="#2A224F"/>
+    <SolidColorBrush x:Key="ThemeSeparatorBrush" Color="#261E47"/>
+    <SolidColorBrush x:Key="ThemeBorderLightBrush" Color="#382F69"/>
+    <SolidColorBrush x:Key="ThemePrimaryBrush" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="ThemeSecondaryBrush" Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="ThemeSoftBrush" Color="#E2E8F0"/>
+    <SolidColorBrush x:Key="ThemeMutedBrush" Color="#9490B8"/>
+    <SolidColorBrush x:Key="ThemeDimBrush" Color="#6C6794"/>
+    <SolidColorBrush x:Key="ThemeActivityIdleBrush" Color="#7C77A4"/>
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#8B5CF6"/>
+    <SolidColorBrush x:Key="ThemeAccentHoverBrush" Color="#7C3AED"/>
+    <SolidColorBrush x:Key="ThemeAccentSoftBrush" Color="#A78BFA"/>
+    <SolidColorBrush x:Key="ThemePopupBrush" Color="#16132B"/>
+    <SolidColorBrush x:Key="ThemeMenuBrush" Color="#141026"/>
+    <SolidColorBrush x:Key="ThemeStatusBrush" Color="#0B0716"/>
+    <SolidColorBrush x:Key="ThemeSurfaceAltBrush" Color="#1B1433"/>
+    <SolidColorBrush x:Key="ThemeLineNumberBrush" Color="#584D7A"/>
+    <SolidColorBrush x:Key="ThemeButtonSurfaceBrush" Color="#332660"/>
+    <SolidColorBrush x:Key="ThemeSelectedPanelBrush" Color="#181330"/>
+    <SolidColorBrush x:Key="ThemeActiveNavBrush" Color="#211A40"/>
+    <SolidColorBrush x:Key="ThemeActiveSurfaceBrush" Color="#241B45"/>
+
+    <Style x:Key="ChromeButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Width" Value="38"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="CloseChromeButton" TargetType="Button" BasedOn="{StaticResource ChromeButton}">
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#E11D48"/>
+          <Setter Property="Foreground" Value="White"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
+    <!-- Clean VS Code / Stitch AI Top Menu Item Style (prevents wrapping, clipping, and cyan focus boxes) -->
+    <Style x:Key="SubMenuItemStyle" TargetType="MenuItem">
+      <Setter Property="Foreground" Value="{DynamicResource ThemeSoftBrush}"/>
+      <Setter Property="Background" Value="{DynamicResource ThemeMenuBrush}"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="FontSize" Value="11.5"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="MenuItem">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4" Margin="2,1">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="16"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="MenuCheckGlyph" Text="✓" Foreground="{DynamicResource ThemeAccentSoftBrush}"
+                           FontSize="11" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Foreground="{DynamicResource ThemeDimBrush}"
+                           FontFamily="{StaticResource Mono}" FontSize="10" Margin="20,0,0,0" VerticalAlignment="Center"/>
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+              <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                  <Condition Binding="{Binding IsCheckable, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>
+                  <Condition Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter TargetName="MenuCheckGlyph" Property="Visibility" Value="Visible"/>
+              </MultiDataTrigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="TopMenuItemStyle" TargetType="MenuItem">
+      <Setter Property="Foreground" Value="{DynamicResource ThemeMutedBrush}"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Padding" Value="8,4"/>
+      <Setter Property="Margin" Value="1,0"/>
+      <Setter Property="FontSize" Value="11.5"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource SubMenuItemStyle}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="MenuItem">
+            <Grid SnapsToDevicePixels="True">
+              <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="5">
+                <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" RecognizesAccessKey="True"/>
+              </Border>
+              <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False"
+                     IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                     Placement="Bottom" PopupAnimation="Fade">
+                <Border Background="{DynamicResource ThemeMenuBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" CornerRadius="7" Padding="4" Margin="0,2,0,0">
+                  <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="16" ShadowDepth="4" Opacity="0.6"/>
+                  </Border.Effect>
+                  <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                </Border>
+              </Popup>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+              <Trigger Property="IsSubmenuOpen" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="ActivityButton" TargetType="Button">
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="Width" Value="42"/>
+      <Setter Property="Margin" Value="0,2"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeActivityIdleBrush}"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Background="Transparent">
+              <Border x:Name="ActiveBar" Width="2.5" HorizontalAlignment="Left" Margin="0,7" CornerRadius="0,2,2,0" Background="Transparent"/>
+              <Border x:Name="Bd" Margin="5,3" CornerRadius="7" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+              </Trigger>
+              <Trigger Property="local:NavState.IsActive" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource ThemeAccentSoftBrush}"/>
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeActiveNavBrush}"/>
+                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+                <Setter TargetName="ActiveBar" Property="Background" Value="{DynamicResource ThemeAccentBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="IconToolbarButton" TargetType="Button">
+      <Setter Property="Width" Value="24"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="1,0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeMutedBrush}"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="ConfirmSecondaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="MinWidth" Value="88"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource ThemeAccentSoftBrush}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="Bd" Property="Opacity" Value="0.86"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="ConfirmDangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="MinWidth" Value="138"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Background" Value="#A92D45"/>
+      <Setter Property="BorderBrush" Value="#D64B64"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#C43A54"/></Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="Bd" Property="Opacity" Value="0.86"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.5"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="EditorTabStyle" TargetType="TabItem">
+      <Setter Property="Foreground" Value="{DynamicResource ThemeMutedBrush}"/><Setter Property="Background" Value="{DynamicResource ThemePanelBrush}"/>
+      <Setter Property="Padding" Value="12,6"/><Setter Property="FontSize" Value="11.5"/><Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="TabItem">
+            <Grid Background="Transparent">
+              <Border x:Name="EditorTabBackground" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="0,0,1,0" Padding="{TemplateBinding Padding}">
+                <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+              </Border>
+              <Border x:Name="EditorTabIndicator" Height="2" VerticalAlignment="Top" Background="Transparent"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="EditorTabBackground" Property="Background" Value="{DynamicResource ThemeWindowBrush}"/>
+                <Setter TargetName="EditorTabIndicator" Property="Background" Value="{DynamicResource ThemeAccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="EditorTabBackground" Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="PanelTab" TargetType="TabItem">
+      <Setter Property="Foreground" Value="{DynamicResource ThemeActivityIdleBrush}"/><Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Padding" Value="12,6"/><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="TabItem">
+            <Grid Background="Transparent" SnapsToDevicePixels="True">
+              <Border x:Name="PanelTabBackground" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+              </Border>
+              <Border x:Name="PanelTabIndicator" Height="2" VerticalAlignment="Bottom" Background="Transparent"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="PanelTabBackground" Property="Background" Value="{DynamicResource ThemeSelectedPanelBrush}"/>
+                <Setter TargetName="PanelTabIndicator" Property="Background" Value="{DynamicResource ThemeAccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="PanelTabBackground" Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="SidebarItemButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryBrush}"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="2.5,0,0,0"/>
+      <Setter Property="Padding" Value="10,7"/>
+      <Setter Property="FontSize" Value="11.5"/>
+      <Setter Property="FontWeight" Value="Medium"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0,6,6,0" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+              </Trigger>
+              <Trigger Property="local:NavState.IsActive" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeActiveSurfaceBrush}"/>
+                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource ThemeAccentSoftBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+
+  <Border CornerRadius="12" Background="{DynamicResource ThemeWindowBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" ClipToBounds="True">
+    <Grid x:Name="RootZoomContainer">
+      <Grid.LayoutTransform>
+        <ScaleTransform x:Name="AppZoomTransform" ScaleX="1.0" ScaleY="1.0"/>
+      </Grid.LayoutTransform>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="32"/>
+      </Grid.RowDefinitions>
+
+      <!-- Top Title Bar: Clean Stitch AI / VS Code Header (No Clipping, Single-Row Menu, Zoom Controls) -->
+      <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1" MouseLeftButtonDown="Titlebar_Drag">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition x:Name="WorkspaceHeaderColumn" Width="Auto"/>
+            <ColumnDefinition x:Name="HeaderMenuColumn" Width="Auto"/>
+            <ColumnDefinition x:Name="HeaderSearchColumn" Width="*"/>
+            <ColumnDefinition x:Name="ZoomHeaderColumn" Width="Auto"/>
+            <ColumnDefinition x:Name="CloudHeaderColumn" Width="Auto"/>
+            <ColumnDefinition x:Name="DeployHeaderColumn" Width="Auto"/>
+            <ColumnDefinition x:Name="WindowControlsColumn" Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <!-- Col 0: Depup brand icon; the titlebar remains a drag region around it. -->
+          <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,8,0" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+            <Image Source="pack://application:,,,/Assets/depup.png" Width="24" Height="24" Margin="0,0,7,0"
+                   Stretch="Uniform" ToolTip="Logo DepupCode — tarik area ini untuk memindahkan jendela"/>
+            <TextBlock VerticalAlignment="Center" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource ThemePrimaryBrush}">
+              <Run Text="Depup"/><Run Text=" Code" Foreground="{DynamicResource ThemeAccentSoftBrush}"/>
+            </TextBlock>
+          </StackPanel>
+
+          <!-- Col 1: Compact Workspace Picker Pill matching Stitch AI -->
+          <Button x:Name="WorkspacePickerButton" Grid.Column="1" Height="26" Margin="2,0,6,0" Padding="8,0"
+                  Background="#16112B" BorderBrush="#2E2459" BorderThickness="1" VerticalAlignment="Center"
+                  Click="OpenFolder_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Buka atau ganti folder workspace (Ctrl+O)">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Viewbox Width="12" Height="12" Margin="0,0,6,0">
+                <Canvas Width="24" Height="24">
+                  <Path Data="M3,6 C3,4.9 3.9,4 5,4 L9.2,4 L11.2,6 L19,6 C20.1,6 21,6.9 21,8 L21,18 C21,19.1 20.1,20 19,20 L5,20 C3.9,20 3,19.1 3,18 Z" Fill="#A78BFA"/>
+                </Canvas>
+              </Viewbox>
+              <TextBlock x:Name="WorkspaceNameText" Text="No Workspace" Foreground="{DynamicResource ThemeSoftBrush}" FontSize="11" FontWeight="SemiBold" MaxWidth="130" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+              <Border Background="#251D47" CornerRadius="3" Padding="4,0.5" Margin="6,0,4,0" VerticalAlignment="Center">
+                <TextBlock x:Name="WorkspaceHeaderBadge" Text="Next.js" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="9" FontFamily="{StaticResource Mono}"/>
+              </Border>
+              <Path Data="M1,1 L4.5,4.5 L8,1" Stroke="#9490B8" StrokeThickness="1.4" VerticalAlignment="Center" Margin="2,1,0,0"/>
+            </StackPanel>
+          </Button>
+
+          <!-- Col 2: Single-Row Non-Wrapping Top Menu Bar -->
+          <Menu x:Name="HeaderMenu" Grid.Column="2" Background="Transparent" VerticalAlignment="Center" Padding="0" Margin="0,0,6,0"
+                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+            <Menu.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem Header="File" Style="{StaticResource TopMenuItemStyle}">
+              <MenuItem Header="New File" InputGestureText="Ctrl+N" Click="HeaderNewFile_Click"/>
+              <MenuItem Header="Open Folder…" InputGestureText="Ctrl+O" Click="HeaderOpenFolder_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Save" InputGestureText="Ctrl+S" Click="HeaderSave_Click"/>
+              <MenuItem Header="Save All" InputGestureText="Ctrl+Shift+S" Click="HeaderSaveAll_Click"/>
+              <MenuItem Header="Close Editor" InputGestureText="Ctrl+W" Click="HeaderCloseTab_Click"/>
+              <MenuItem Header="Close All Tabs" InputGestureText="Ctrl+K Ctrl+W" Click="HeaderCloseAllTabs_Click"/>
+            </MenuItem>
+            <MenuItem Header="Edit" Style="{StaticResource TopMenuItemStyle}">
+              <MenuItem Header="Find in File" InputGestureText="Ctrl+F" Click="HeaderFindInFile_Click"/>
+              <MenuItem Header="Replace in File" InputGestureText="Ctrl+H" Click="HeaderReplaceInFile_Click"/>
+              <MenuItem Header="Search in Workspace" InputGestureText="Ctrl+Shift+F" Click="HeaderSearch_Click"/>
+              <MenuItem Header="Go to Line…" InputGestureText="Ctrl+G" Click="HeaderGoToLine_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Format Document" InputGestureText="Shift+Alt+F" Click="FormatDocument_Click"/>
+              <MenuItem Header="Command Palette" InputGestureText="Ctrl+Shift+P" Click="HeaderCommandPalette_Click"/>
+              <MenuItem Header="Quick Open" InputGestureText="Ctrl+P" Click="HeaderQuickOpen_Click"/>
+            </MenuItem>
+            <MenuItem Header="Run" Style="{StaticResource TopMenuItemStyle}">
+              <MenuItem Header="Show Run &amp; Debug" InputGestureText="Ctrl+Shift+D" Click="RunDebugPanel_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Run Task…" Click="RunWorkspaceTask_Click"/>
+              <MenuItem Header="Run Default Build Task" Click="RunDefaultBuildTask_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Start / Continue Debugging" InputGestureText="F5" Click="StartOrContinueDebugging_Click"/>
+              <MenuItem Header="Toggle Breakpoint" InputGestureText="F9" Click="ToggleBreakpoint_Click"/>
+              <MenuItem Header="Step Over" InputGestureText="F10" Click="DebugStepOver_Click"/>
+              <MenuItem Header="Step Into" InputGestureText="F11" Click="DebugStepInto_Click"/>
+              <MenuItem Header="Step Out" InputGestureText="Shift+F11" Click="DebugStepOut_Click"/>
+              <MenuItem Header="Pause" Click="DebugPause_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Stop Debugging" InputGestureText="Shift+F5" Click="StopDebugging_Click"/>
+              <MenuItem Header="Open launch.json" Click="OpenDebugConfiguration_Click"/>
+            </MenuItem>
+            <MenuItem Header="View" Style="{StaticResource TopMenuItemStyle}">
+              <MenuItem Header="Zoom In" InputGestureText="Ctrl+=" Click="ZoomIn_Click"/>
+              <MenuItem Header="Zoom Out" InputGestureText="Ctrl+-" Click="ZoomOut_Click"/>
+              <MenuItem Header="Reset Zoom (100%)" InputGestureText="Ctrl+0" Click="ZoomReset_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Extensions" InputGestureText="Ctrl+Shift+X" Click="HeaderExtensions_Click"/>
+              <MenuItem Header="Settings" Click="HeaderSettings_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Toggle Word Wrap" InputGestureText="Alt+Z" Click="ToggleWordWrap_Click"/>
+              <MenuItem Header="Toggle Minimap" Click="HeaderToggleMinimap_Click"/>
+              <MenuItem Header="Toggle Terminal Panel" InputGestureText="Ctrl+`" Click="ToggleBottomPanel_Click"/>
+            </MenuItem>
+            <MenuItem Header="Terminal" Style="{StaticResource TopMenuItemStyle}">
+              <MenuItem Header="Focus Terminal" InputGestureText="Ctrl+`" Click="HeaderTerminal_Click"/>
+              <MenuItem Header="New Terminal" InputGestureText="Ctrl+Shift+`" Click="NewTerminal_Click"/>
+              <MenuItem Header="Close Active Terminal" Click="CloseTerminal_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Stop Running Process (SIGINT)" InputGestureText="Ctrl+C" Click="StopTerminal_Click"/>
+              <MenuItem Header="Suspend Process (SIGTSTP)" InputGestureText="Ctrl+Z" Click="SuspendTerminal_Click"/>
+              <MenuItem Header="Clear Terminal" InputGestureText="Ctrl+L" Click="ClearTerminal_Click"/>
+              <Separator Background="{DynamicResource ThemeBorderBrush}" Margin="4,3"/>
+              <MenuItem Header="Run depup project list" Click="HeaderRunDepupList_Click"/>
+              <MenuItem Header="Run depup status --verbose" Click="HeaderRunDepupStatus_Click"/>
+            </MenuItem>
+            <MenuItem Header="Cloud" Style="{StaticResource TopMenuItemStyle}">
+              <MenuItem x:Name="CloudDeployMenuItem" Header="Deploy Pipeline" Click="HeaderDeploy_Click"/>
+              <MenuItem Header="Projects &amp; Workspaces" Click="HeaderProjects_Click"/>
+              <MenuItem x:Name="UploadMenuItem" Header="Upload Project Bundle" Click="HeaderUpload_Click"/>
+              <MenuItem x:Name="LinkGaibMenuItem" Header="Link Gaib (HTTPS Tunnel)" Click="HeaderLinkGaib_Click"/>
+              <MenuItem x:Name="DomainsMenuItem" Header="Domains &amp; URLs" Click="HeaderDomains_Click"/>
+              <MenuItem x:Name="EnvironmentMenuItem" Header="Environment &amp; Secrets" Click="HeaderEnv_Click"/>
+              
+            </MenuItem>
+            <MenuItem Header="Workspace" Style="{StaticResource TopMenuItemStyle}" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontWeight="SemiBold" Click="HeaderProjects_Click"/>
+          </Menu>
+
+          <!-- Col 3: Centered Global Search / Command Palette Box -->
+          <Border Grid.Column="3" Height="27" MaxWidth="460" MinWidth="140" Margin="6,0,8,0" VerticalAlignment="Center"
+                  Background="#0B0816" BorderBrush="#2E2459" BorderThickness="1" CornerRadius="6"
+                  shell:WindowChrome.IsHitTestVisibleInChrome="True">
+            <DockPanel>
+              <Viewbox DockPanel.Dock="Left" Width="12" Height="12" Margin="9,0,6,0" VerticalAlignment="Center">
+                <Canvas Width="24" Height="24">
+                  <Path Data="M21,21 L15.8,15.8 M18,10.5 A7.5,7.5 0 1,1 3,10.5 A7.5,7.5 0 1,1 18,10.5 Z" Stroke="#A78BFA" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                </Canvas>
+              </Viewbox>
+              <Border DockPanel.Dock="Right" Background="#1D1738" BorderBrush="#342A60" BorderThickness="1" CornerRadius="4" Margin="4,3,5,3" Padding="5,0" Cursor="Hand" MouseLeftButtonUp="CommandPaletteBadge_Click">
+                <TextBlock Text="Ctrl+P" FontSize="9" FontFamily="{StaticResource Mono}" Foreground="{DynamicResource ThemeMutedBrush}" VerticalAlignment="Center"/>
+              </Border>
+              <TextBox x:Name="HeaderSearchBox" BorderThickness="0" Background="Transparent" Padding="0" VerticalContentAlignment="Center"
+                       FontSize="11" Foreground="{DynamicResource ThemeSecondaryBrush}" ToolTip="Cari project, file, atau ketik &gt; untuk Command Palette (Ctrl+P / Ctrl+Shift+P)"
+                       KeyDown="HeaderSearch_KeyDown" Text="Cari project, workspace, repo GitHub, atau command..."
+                       GotKeyboardFocus="HeaderSearch_GotFocus" LostKeyboardFocus="HeaderSearch_LostFocus"/>
+            </DockPanel>
+          </Border>
+
+          <!-- Col 4: VS Code Style Zoom Pill (− 100% +) -->
+          <Border x:Name="ZoomHeaderPill" Grid.Column="4" Height="25" Margin="0,0,6,0" Background="#151029" BorderBrush="#2E2459" BorderThickness="1" CornerRadius="6"
+                  VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Zoom Tampilan Aplikasi (Ctrl+= / Ctrl+- / Ctrl+0)">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Button Content="−" Width="22" Height="23" Padding="0" FontSize="12" Style="{StaticResource IconToolbarButton}" Click="ZoomOut_Click" ToolTip="Zoom Out (Ctrl+-)"/>
+              <TextBlock x:Name="ZoomHeaderText" Text="100%" Width="36" TextAlignment="Center" Foreground="#C4B5FD" FontSize="10" FontWeight="SemiBold"
+                         FontFamily="{StaticResource Mono}" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="ZoomReset_Click" ToolTip="Klik untuk Reset Zoom ke 100% (Ctrl+0)"/>
+              <Button Content="＋" Width="22" Height="23" Padding="0" FontSize="11" Style="{StaticResource IconToolbarButton}" Click="ZoomIn_Click" ToolTip="Zoom In (Ctrl+=)"/>
+            </StackPanel>
+          </Border>
+
+          <!-- Col 5: Depup Cloud Status Pill (Auto-width so names never clip) -->
+          <Border x:Name="CloudStatusPill" Grid.Column="5" Height="25" Margin="0,0,6,0" Padding="9,0" Background="#0D2620" BorderBrush="#195240" BorderThickness="1" CornerRadius="12"
+                  VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="CloudStatusPill_Click"
+                  ToolTip="Status koneksi ke https://depup.cloud (Klik untuk menguji koneksi)" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Ellipse x:Name="CloudHeaderDot" Width="6.5" Height="6.5" Fill="#F59E0B" Margin="0,0,6,0">
+                <Ellipse.Effect><DropShadowEffect Color="#10B981" BlurRadius="8" ShadowDepth="0" Opacity="0.9"/></Ellipse.Effect>
+              </Ellipse>
+              <TextBlock x:Name="CloudHeaderText" Text="Depup Cloud: Checking…" Foreground="#FBBF24" FontSize="10.5" FontWeight="SemiBold" MaxWidth="175" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Border>
+
+          <!-- Col 6: Quick Action Deploy / New Project Button -->
+          <Button x:Name="HeaderPrimaryButton" Grid.Column="6" Tag="RequiresCloud" Style="{StaticResource PrimaryButton}" Height="26" Margin="0,0,6,0" Padding="10,0"
+                  FontSize="11" VerticalAlignment="Center" Click="DeployStatus_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Buka Pipeline Deploy Depup Cloud">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Viewbox Width="11" Height="11" Margin="0,0,5,0">
+                <Canvas Width="24" Height="24">
+                  <Path Data="M7,16 A4,4 0 0,1 6,8.1 A5,5 0 0,1 15.9,6 A5,5 0 0,1 17,15.9 M15,13 L12,10 L9,13 M12,10 L12,21" Stroke="White" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                </Canvas>
+              </Viewbox>
+              <TextBlock Text="Deploy" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+
+          <!-- Col 7: Window Chrome Buttons -->
+          <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Style="{StaticResource ChromeButton}" Click="Minimize_Click" ToolTip="Minimize">
+              <Path Data="M0,0 L10,0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" VerticalAlignment="Center"/>
+            </Button>
+            <Button x:Name="MaximizeButton" Style="{StaticResource ChromeButton}" Click="Maximize_Click" ToolTip="Maximize / Restore">
+              <Rectangle Width="9" Height="9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.3"/>
+            </Button>
+            <Button Style="{StaticResource CloseChromeButton}" Click="Close_Click" ToolTip="Close">
+              <Path Data="M0,0 L9,9 M9,0 L0,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.5"/>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Main Body: Activity Bar + Sidebar + Workspace/Editor & Bottom Panel -->
+      <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition x:Name="ActivityColumn" Width="48"/>
+          <ColumnDefinition x:Name="SidebarColumn" Width="268"/>
+          <ColumnDefinition x:Name="SidebarSplitterColumn" Width="5"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Activity Bar: primary navigation and profile/settings at the bottom -->
+        <Border Grid.Column="0" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,1,0">
+          <DockPanel LastChildFill="False">
+            <StackPanel x:Name="ActivityTop" DockPanel.Dock="Top" Margin="0,6,0,0" HorizontalAlignment="Center">
+              <!-- Projects & Workspaces Hub -->
+              <Button Tag="projects" ToolTip="Projects &amp; Workspaces — buka, atur, dan buat workspace" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="18" Height="18">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M3,7 L3,17 C3,18.1 3.9,19 5,19 L19,19 C20.1,19 21,18.1 21,17 L21,9 C21,7.9 20.1,7 19,7 L13,7 L11,5 L5,5 C3.9,5 3,5.9 3,7 Z"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeLineJoin="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+
+              <!-- Explorer & Code Editor -->
+              <Button Tag="editor" ToolTip="Explorer &amp; Editor Kode — buka dan kelola file (Ctrl+Shift+E)" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="18" Height="18">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M8,4 L18,4 C19.1,4 20,4.9 20,6 L20,16 C20,17.1 19.1,18 18,18 L8,18 C6.9,18 6,17.1 6,16 L6,6 C6,4.9 6.9,4 8,4 Z M4,8 L4,19 C4,20.1 4.9,21 6,21 L16,21"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+
+              <!-- Search in Workspace -->
+              <Button Tag="search" ToolTip="Cari teks di seluruh workspace (Ctrl+Shift+F)" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="17" Height="17">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M21,21 L16.2,16.2 M18,10.5 A7.5,7.5 0 1,1 3,10.5 A7.5,7.5 0 1,1 18,10.5 Z"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.9" StrokeStartLineCap="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+
+              <!-- AI Chat / Agent -->
+              <Button Tag="ai" ToolTip="AI Agent — chat, tanya, rencanakan, dan bantu ubah workspace"
+                      Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="19" Height="19">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M12,3 L13.8,9.2 L20,11 L13.8,12.8 L12,19 L10.2,12.8 L4,11 L10.2,9.2 Z M19,16 L20,19 L23,20 L20,21 L19,24 L18,21 L15,20 L18,19 Z"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="1.5" StrokeLineJoin="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+
+              <!-- Source Control (Git) with Badge -->
+              <Grid>
+                <Button x:Name="GitActivityButton" Tag="git" ToolTip="Source Control — lihat perubahan dan kelola Git" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                  <Viewbox Width="18" Height="18">
+                    <Canvas Width="24" Height="24">
+                      <Path Data="M7,6 A2.5,2.5 0 1,1 7,1.1 A2.5,2.5 0 1,1 7,6 Z M7,22 A2.5,2.5 0 1,1 7,17.1 A2.5,2.5 0 1,1 7,22 Z M17,14 A2.5,2.5 0 1,1 17,9.1 A2.5,2.5 0 1,1 17,14 Z M7,6 L7,17 M7,10 C7,12 10,12 14.5,12"
+                            Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                    </Canvas>
+                  </Viewbox>
+                </Button>
+                <Border x:Name="GitBadgeBorder" Background="{DynamicResource ThemeAccentHoverBrush}" CornerRadius="8" Padding="4,0" MinWidth="16" Height="14"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" IsHitTestVisible="False">
+                  <TextBlock x:Name="GitBadgeText" Text="34" Foreground="White" FontSize="8.5" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+              </Grid>
+
+              <!-- Depup Cloud Engine / Deploy -->
+              <Grid>
+                <Button x:Name="DeployActivityButton" Tag="deploy" ToolTip="Deploy — jalankan build dan terbitkan project" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                  <Viewbox Width="18" Height="18">
+                    <Canvas Width="24" Height="24">
+                      <Path Data="M13,2 L4,14 L11,14 L10,22 L20,10 L13,10 Z"
+                            Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeLineJoin="Round"/>
+                    </Canvas>
+                  </Viewbox>
+                </Button>
+                <Ellipse Width="6" Height="6" Fill="#10B981" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,7" IsHitTestVisible="False"/>
+              </Grid>
+
+              <!-- Domains & Cloud DNS -->
+              <Button x:Name="DomainsActivityButton" Tag="domains" ToolTip="Domains — kelola domain dan DNS cloud" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="17" Height="17">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M12,21 A9,9 0 1,1 12,3 A9,9 0 1,1 12,21 Z M3.6,9 L20.4,9 M3.6,15 L20.4,15 M12,3 C9.5,7 9.5,17 12,21 M12,3 C14.5,7 14.5,17 12,21"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.7" StrokeLineJoin="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+
+              <!-- Environment Variables & DPAPI Secrets -->
+              <Button x:Name="EnvironmentActivityButton" Tag="environment" ToolTip="Environment — atur variabel dan secret project" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="17" Height="17">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M4,21 L4,14 M4,10 L4,3 M12,21 L12,12 M12,8 L12,3 M20,21 L20,16 M20,12 L20,3 M1,14 L7,14 M9,8 L15,8 M17,16 L23,16"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+
+              <!-- Link Gaib HTTPS Tunnel -->
+              <Button x:Name="LinkGaibActivityButton" Tag="linkgaib" ToolTip="Link Gaib — bagikan server lokal lewat HTTPS tunnel" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="17" Height="17">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M12,12 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M16.24,7.76 a6,6 0 0,1 0,8.49 M7.76,16.24 a6,6 0 0,1 0,-8.49 M19.07,4.93 a10,10 0 0,1 0,14.14 M4.93,19.07 a10,10 0 0,1 0,-14.14"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+              <Button x:Name="ExtensionsActivityButton" Tag="extensions" ToolTip="Extensions — cari dan pasang tema serta snippets" Click="Nav_Click" Style="{StaticResource ActivityButton}">
+                <Viewbox Width="18" Height="18">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M9,3 L9,7.1 A2.9,2.9 0 1,1 9,12.9 L9,17 L13.1,17 A2.9,2.9 0 1,1 18.9,17 L21,17 L21,3 Z M3,9 L7.1,9 A2.9,2.9 0 1,1 7.1,15 L3,15 Z M3,18 L7,18 M5,16 L5,20"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+            </StackPanel>
+
+            <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,8" HorizontalAlignment="Center">
+              <Border x:Name="AccountChip" Width="30" Height="30" CornerRadius="15" BorderBrush="#C4B5FD" BorderThickness="1"
+                      VerticalAlignment="Center" Margin="0,0,0,3" Cursor="Hand" ToolTip="Akun Depup — buka profil dan pengaturan akun"
+                      MouseLeftButtonUp="HeaderSettings_Click">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#8B5CF6" Offset="0"/>
+                    <GradientStop Color="#EC4899" Offset="1"/>
+                  </LinearGradientBrush>
+                </Border.Background>
+                <TextBlock x:Name="AccountChipLetter" Text="D" FontWeight="Bold" FontSize="10" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <Button x:Name="SettingsNavButton" Tag="settings" Click="Nav_Click" Style="{StaticResource ActivityButton}"
+                      ToolTip="Settings — tema seluruh aplikasi, editor, fitur, dan akun">
+                <Viewbox Width="19" Height="19">
+                  <Canvas Width="24" Height="24">
+                    <Path Data="M12,8.6 A3.4,3.4 0 1,0 12,15.4 A3.4,3.4 0 1,0 12,8.6 Z M19.4,13.5 L21,14.7 L19,18.2 L17.7,17.5 C17.1,18 16.5,18.3 15.8,18.6 L15.6,20.2 L11.6,20.2 L11.4,18.6 C10.7,18.4 10,18.1 9.4,17.6 L8,18.2 L6,14.8 L7.3,13.6 C7.1,12.9 7.1,12.2 7.3,11.5 L6,10.3 L8,6.8 L9.5,7.4 C10,6.9 10.7,6.6 11.4,6.4 L11.6,4.8 L15.6,4.8 L15.9,6.4 C16.6,6.6 17.2,6.9 17.8,7.4 L19.2,6.8 L21.2,10.3 L19.7,11.5 C19.8,12.2 19.8,12.9 19.4,13.5 Z"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.5" StrokeLineJoin="Round"/>
+                  </Canvas>
+                </Viewbox>
+              </Button>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
+        <!-- Sidebar Pane -->
+        <Border x:Name="SidebarPane" Grid.Column="1" Background="{DynamicResource ThemeSidebarBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,1,0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="1"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 1. Explorer Sidebar Content (Stitch AI Cloud IDE Deployment 1 design) -->
+            <Grid x:Name="ExplorerSidebarContent" Grid.Row="0" Visibility="Collapsed">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Explorer Header & Crisp Vector Action Icons -->
+              <Border Grid.Row="0" BorderBrush="#231B42" BorderThickness="0,0,0,1" Padding="12,0,8,0">
+                <DockPanel>
+                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource IconToolbarButton}" Click="ExplorerNewFile_Click" ToolTip="New File (Ctrl+N)">
+                      <Viewbox Width="13" Height="13">
+                        <Canvas Width="24" Height="24">
+                          <Path Data="M14,2 L6,2 C4.9,2 4,2.9 4,4 L4,20 C4,21.1 4.9,22 6,22 L18,22 C19.1,22 20,21.1 20,20 L20,8 Z M14,2 L14,8 L20,8 M12,18 L12,12 M9,15 L15,15"
+                                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                        </Canvas>
+                      </Viewbox>
+                    </Button>
+                    <Button Style="{StaticResource IconToolbarButton}" Click="ExplorerNewFolder_Click" ToolTip="New Folder">
+                      <Viewbox Width="13" Height="13">
+                        <Canvas Width="24" Height="24">
+                          <Path Data="M22,19 C22,20.1 21.1,21 20,21 L4,21 C2.9,21 2,20.1 2,19 L2,5 C2,3.9 2.9,3 4,3 L9,3 L11,6 L20,6 C21.1,6 22,6.9 22,8 Z M12,11 L12,17 M9,14 L15,14"
+                                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                        </Canvas>
+                      </Viewbox>
+                    </Button>
+                    <Button Style="{StaticResource IconToolbarButton}" Click="ExplorerRefresh_Click" ToolTip="Refresh Explorer">
+                      <Viewbox Width="13" Height="13">
+                        <Canvas Width="24" Height="24">
+                          <Path Data="M21,12 A9,9 0 1,1 18.36,5.64 L21,8 M21,3 L21,8 L16,8"
+                                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                        </Canvas>
+                      </Viewbox>
+                    </Button>
+                    <Button Style="{StaticResource IconToolbarButton}" Click="ExplorerCollapse_Click" ToolTip="Collapse All Folders">
+                      <Viewbox Width="13" Height="13">
+                        <Canvas Width="24" Height="24">
+                          <Path Data="M4,12 L20,12 M7,7 L12,2 L17,7 M7,17 L12,22 L17,17"
+                                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                        </Canvas>
+                      </Viewbox>
+                    </Button>
+                  </StackPanel>
+                  <TextBlock Text="EXPLORER" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                </DockPanel>
+              </Border>
+
+              <!-- Project Accordion Header -->
+              <Border Grid.Row="1" Background="{DynamicResource ThemeInputBrush}" BorderBrush="#231B42" BorderThickness="0,0,0,1" Padding="10,0">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="Buka…" Padding="7,1.5" FontSize="9.5" Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" VerticalAlignment="Center" Click="OpenFolder_Click"/>
+                  <TextBlock DockPanel.Dock="Right" Text="workspace" Foreground="#A855F7" FontSize="9.5" FontFamily="{StaticResource Mono}" VerticalAlignment="Center" Margin="6,0,8,0"/>
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="M1,1 L4.5,4.5 L8,1" Stroke="#9490B8" StrokeThickness="1.5" VerticalAlignment="Center" Margin="0,1,7,0"/>
+                    <TextBlock x:Name="FolderPathBox" Text="Open a folder to get started" Foreground="#F1F5F9" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="Open a local project folder"/>
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+
+              <!-- File Tree with Crisp Vector Folder Icons & Clean Type Badges -->
+              <Border x:Name="ExplorerInlineEditor" Grid.Row="2" Visibility="Collapsed" Margin="7,5,7,2" Padding="6"
+                      Background="{DynamicResource ThemePanelBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}"
+                      BorderThickness="1" CornerRadius="6">
+                <StackPanel>
+                  <DockPanel Margin="2,0,2,5">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource IconToolbarButton}" Content="×"
+                            Click="ExplorerInlineCancel_Click" ToolTip="Batalkan (Esc)"/>
+                    <TextBlock x:Name="ExplorerInlineLabel" Text="New File" Foreground="{DynamicResource ThemeMutedBrush}"
+                               FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                  </DockPanel>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="ExplorerInlineNameBox" Grid.Column="0" Height="27" Padding="7,3"
+                             VerticalContentAlignment="Center" FontSize="10.5"
+                             PreviewKeyDown="ExplorerInlineNameBox_PreviewKeyDown"/>
+                    <Button Grid.Column="1" Style="{StaticResource IconToolbarButton}" Content="✓" Foreground="#34D399"
+                            Click="ExplorerInlineCreate_Click" ToolTip="Buat atau ganti nama (Enter)"/>
+                  </Grid>
+                </StackPanel>
+              </Border>
+
+              <TreeView x:Name="ExplorerTree" Grid.Row="3" ItemsSource="{Binding ExplorerNodes}"
+                        SelectedItemChanged="Explorer_Selected" MouseDoubleClick="Explorer_DoubleClick"
+                        PreviewMouseRightButtonDown="ExplorerTree_PreviewMouseRightButtonDown"
+                        ContextMenuOpening="ExplorerTree_ContextMenuOpening" Margin="4,4,4,5">
+                <TreeView.ContextMenu>
+                  <ContextMenu Background="{DynamicResource ThemePopupBrush}" Foreground="{DynamicResource ThemePrimaryBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}">
+                    <ContextMenu.Resources>
+                      <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource SubMenuItemStyle}"/>
+                      <Style TargetType="{x:Type Separator}">
+                        <Setter Property="Margin" Value="8,5"/>
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="Separator">
+                              <Border Height="1" Background="{DynamicResource ThemeSeparatorBrush}"/>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                      </Style>
+                    </ContextMenu.Resources>
+                    <MenuItem Header="Show Preview" Click="ExplorerShowPreview_Click" Visibility="Collapsed"/>
+                    <Separator Visibility="Collapsed"/>
+                    <MenuItem Header="New File…" Click="ExplorerNewFile_Click"/>
+                    <MenuItem Header="New Folder…" Click="ExplorerNewFolder_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Rename (F2)" Click="ExplorerRename_Click"/>
+                    <MenuItem Header="Delete" Foreground="#F87171" Click="ExplorerDelete_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Copy Full Path" Click="ExplorerCopyPath_Click"/>
+                    <MenuItem Header="Copy Relative Path" Click="ExplorerCopyRelativePath_Click"/>
+                    <MenuItem Header="Open in Terminal" Click="ExplorerOpenInTerminal_Click"/>
+                    <MenuItem Header="Reveal in File Explorer" Click="ExplorerRevealInExplorer_Click"/>
+                  </ContextMenu>
+                </TreeView.ContextMenu>
+                <TreeView.Resources>
+                  <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+                    <Setter Property="Padding" Value="5,1"/>
+                    <Setter Property="Margin" Value="1,1,3,1"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Template">
+                      <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                          <Grid SnapsToDevicePixels="True">
+                            <Grid.RowDefinitions>
+                              <RowDefinition Height="Auto"/>
+                              <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                              <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                              </Grid.ColumnDefinitions>
+                              <ToggleButton x:Name="Expander" Grid.Column="0" Width="16" Height="22" Focusable="False" IsTabStop="False"
+                                            IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                  <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent">
+                                      <Path x:Name="Chevron" Data="M 0,0 L 4,4 L 0,8" Stroke="{DynamicResource ThemeDimBrush}"
+                                            StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform><RotateTransform Angle="0"/></Path.RenderTransform>
+                                      </Path>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                      <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="Chevron" Property="RenderTransform">
+                                          <Setter.Value><RotateTransform Angle="90"/></Setter.Value>
+                                        </Setter>
+                                      </Trigger>
+                                      <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Chevron" Property="Stroke" Value="{DynamicResource ThemePrimaryBrush}"/>
+                                      </Trigger>
+                                    </ControlTemplate.Triggers>
+                                  </ControlTemplate>
+                                </ToggleButton.Template>
+                              </ToggleButton>
+                              <Border x:Name="ItemHeader" Grid.Column="1" Background="Transparent" BorderBrush="Transparent" BorderThickness="1"
+                                      CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter x:Name="PART_Header" ContentSource="Header"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                              </Border>
+                            </Grid>
+                            <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Margin="17,0,0,0"/>
+                          </Grid>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False">
+                              <Setter TargetName="Expander" Property="Visibility" Value="Hidden"/>
+                            </Trigger>
+                            <Trigger Property="IsExpanded" Value="False">
+                              <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                              <Setter TargetName="ItemHeader" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                              <Setter TargetName="ItemHeader" Property="Background" Value="{DynamicResource ThemeActiveNavBrush}"/>
+                              <Setter TargetName="ItemHeader" Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+                            </Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value>
+                    </Setter>
+                  </Style>
+                  <HierarchicalDataTemplate DataType="{x:Type models:FileNode}" ItemsSource="{Binding Children}">
+                    <DockPanel LastChildFill="True" MinWidth="170" Height="22">
+                      <!-- Folder Vector Icon -->
+                      <Viewbox Visibility="{Binding FolderIconVisibility}" Width="14" Height="14" Margin="1,0,7,0" VerticalAlignment="Center">
+                        <Canvas Width="24" Height="24">
+                          <Path Data="{Binding FolderGeometry}" Fill="{Binding IconBrush}" Opacity="0.92"/>
+                        </Canvas>
+                      </Viewbox>
+                      <!-- File Type Badge -->
+                      <Border Visibility="{Binding FileBadgeVisibility}" Background="{Binding BadgeBackground}" CornerRadius="3"
+                              Padding="3.5,0.5" MinWidth="24" Margin="0,2,6,2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding IconGlyph}" Foreground="{Binding IconBrush}" FontSize="8.5" FontWeight="Bold"
+                                   FontFamily="{StaticResource Mono}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                      </Border>
+                      <TextBlock Text="{Binding Name}" FontFamily="{StaticResource Mono}" FontSize="11.5" Padding="0"
+                                 Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}}}"
+                                 TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                    </DockPanel>
+                  </HierarchicalDataTemplate>
+                </TreeView.Resources>
+              </TreeView>
+            </Grid>
+
+            <!-- 2. Projects & Workspaces Sidebar Content matching Stitch AI -->
+            <ScrollViewer x:Name="ProjectsSidebarContent" Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="0,0,0,10">
+                <Border BorderBrush="#231B42" BorderThickness="0,0,0,1" Height="34" Padding="12,0,8,0">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                      <Button Style="{StaticResource IconToolbarButton}" ToolTip="Buka Folder Lokal" Click="OpenFolder_Click">
+                        <Viewbox Width="13" Height="13">
+                          <Canvas Width="24" Height="24">
+                            <Path Data="M22,19 C22,20.1 21.1,21 20,21 L4,21 C2.9,21 2,20.1 2,19 L2,5 C2,3.9 2.9,3 4,3 L9,3 L11,6 L20,6 C21.1,6 22,6.9 22,8 Z M12,11 L12,17 M9,14 L15,14"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                          </Canvas>
+                        </Viewbox>
+                      </Button>
+                      <Button Style="{StaticResource IconToolbarButton}" ToolTip="Sinkronkan Katalog" Click="RefreshProjectsSidebar_Click">
+                        <Viewbox Width="13" Height="13">
+                          <Canvas Width="24" Height="24">
+                            <Path Data="M21,12 A9,9 0 1,1 18.36,5.64 L21,8 M21,3 L21,8 L16,8"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                          </Canvas>
+                        </Viewbox>
+                      </Button>
+                      <Button Style="{StaticResource IconToolbarButton}" ToolTip="Switch ke File Explorer" Click="SwitchToExplorer_Click">
+                        <Viewbox Width="12" Height="12">
+                          <Canvas Width="24" Height="24">
+                            <Path Data="M6,9 L12,15 L18,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                          </Canvas>
+                        </Viewbox>
+                      </Button>
+                    </StackPanel>
+                    <TextBlock Text="PROJECTS &amp; WORKSPACES" Foreground="#C4B5FD" FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                  </DockPanel>
+                </Border>
+
+                <!-- Section: WORKSPACE AKTIF -->
+                <DockPanel Margin="14,10,14,7">
+                  <Ellipse DockPanel.Dock="Right" Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center"/>
+                  <TextBlock Text="WORKSPACE AKTIF" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontWeight="Bold" FontFamily="{StaticResource Mono}"/>
+                </DockPanel>
+
+                <Border Margin="12,0,12,14" Background="#1A1333" BorderBrush="#4C388E" BorderThickness="1" CornerRadius="8" Padding="12,10"
+                        Cursor="Hand" MouseLeftButtonUp="ActiveWorkspaceCard_Click" ToolTip="Klik untuk membuka di Code Editor">
+                  <StackPanel>
+                    <DockPanel>
+                      <Border DockPanel.Dock="Right" Background="{DynamicResource ThemeHoverBrush}" BorderBrush="#4B3A93" BorderThickness="1" CornerRadius="4" Padding="6,1">
+                        <TextBlock x:Name="ActiveWorkspaceFrameworkBadge" Text="Next.js" Foreground="#C4B5FD" FontSize="9" FontWeight="SemiBold" FontFamily="{StaticResource Mono}"/>
+                      </Border>
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⚡" Foreground="#F97316" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ActiveWorkspaceTitleText" Text="No Workspace" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                      </StackPanel>
+                    </DockPanel>
+                    <TextBlock x:Name="ActiveWorkspacePathText" Text="Open a folder to get started" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10.5" FontFamily="{StaticResource Mono}" Margin="0,5,0,8" TextTrimming="CharacterEllipsis"/>
+                    <DockPanel>
+                      <TextBlock DockPanel.Dock="Right" Text="v2.5.0" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontFamily="{StaticResource Mono}"/>
+                      <TextBlock Text="Workspace Ready" Foreground="#34D399" FontSize="10" FontWeight="SemiBold"/>
+                    </DockPanel>
+                  </StackPanel>
+                </Border>
+
+                <!-- Section: WORKSPACE LOKAL TERKINI -->
+                <DockPanel Margin="14,2,12,6">
+                  <Button DockPanel.Dock="Right" Content="＋" Width="20" Height="20" Padding="0" FontSize="12" Style="{StaticResource IconToolbarButton}" ToolTip="Tambah Folder Workspace Lokal" Click="OpenFolder_Click"/>
+                  <TextBlock Text="WORKSPACE LOKAL TERKINI" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontWeight="Bold" FontFamily="{StaticResource Mono}" VerticalAlignment="Center"/>
+                </DockPanel>
+
+                <StackPanel x:Name="RecentWorkspacesList" Margin="6,0,8,12"/>
+
+                <!-- Section: CLOUD REPOSITORIES (GITHUB) -->
+                <DockPanel Margin="14,4,14,6">
+                  <TextBlock Text="CLOUD REPOSITORIES (GITHUB) @DEPUP-DEV" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontWeight="Bold" FontFamily="{StaticResource Mono}" TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+
+                <StackPanel x:Name="CloudReposSidebarList" Margin="6,0,8,12"/>
+
+                <!-- Section: PLATFORM TERHUBUNG -->
+                <DockPanel Margin="14,4,14,8">
+                  <TextBlock x:Name="ConnectedPlatformsCountText" DockPanel.Dock="Right" Text="2 AKTIF" Foreground="#34D399" FontSize="9" FontWeight="Bold" FontFamily="{StaticResource Mono}"/>
+                  <TextBlock Text="PLATFORM TERHUBUNG" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontWeight="Bold" FontFamily="{StaticResource Mono}"/>
+                </DockPanel>
+
+                <StackPanel Margin="14,0,14,6">
+                  <DockPanel Margin="0,4">
+                    <TextBlock x:Name="RailwaySidebarState" DockPanel.Dock="Right" Text="Live" Foreground="#34D399" FontSize="10" FontWeight="Bold" FontFamily="{StaticResource Mono}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                      <Ellipse Width="7" Height="7" Fill="#A855F7" Margin="0,0,8,0"/>
+                      <TextBlock Text="Railway (Singapore Edge)" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="11.5"/>
+                    </StackPanel>
+                  </DockPanel>
+                  <DockPanel Margin="0,4">
+                    <TextBlock x:Name="DepupSidebarState" DockPanel.Dock="Right" Text="Live" Foreground="#34D399" FontSize="10" FontWeight="Bold" FontFamily="{StaticResource Mono}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                      <Ellipse Width="7" Height="7" Fill="#3B82F6" Margin="0,0,8,0"/>
+                      <TextBlock Text="Depup Edge CDN" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="11.5"/>
+                    </StackPanel>
+                  </DockPanel>
+                  <DockPanel Margin="0,4">
+                    <TextBlock x:Name="VercelSidebarState" DockPanel.Dock="Right" Text="Idle" Foreground="{DynamicResource ThemeDimBrush}" FontSize="10" FontFamily="{StaticResource Mono}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                      <Ellipse Width="7" Height="7" Fill="#6C6794" Margin="0,0,8,0"/>
+                      <TextBlock Text="Vercel Integration" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="11.5"/>
+                    </StackPanel>
+                  </DockPanel>
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+
+            <!-- Settings navigation replaces the projects list while Settings is active. -->
+            <Grid x:Name="SettingsSidebarContent" Grid.Row="0" Visibility="Collapsed">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Border Grid.Row="0" BorderBrush="#231B42" BorderThickness="0,0,0,1" Padding="12,0,8,0">
+                <DockPanel>
+                  <TextBlock Text="SETTINGS &amp; PREFERENCES" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                  <TextBlock DockPanel.Dock="Right" Text="⚙" Foreground="{DynamicResource ThemeDimBrush}" FontSize="12" VerticalAlignment="Center"/>
+                </DockPanel>
+              </Border>
+              <Border Grid.Row="1" Margin="10,4,10,5" Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="5">
+                <Grid>
+                  <TextBox x:Name="SettingsSidebarSearchBox" TextChanged="SettingsSidebarSearch_TextChanged"
+                           Background="Transparent" Foreground="{DynamicResource ThemeSoftBrush}" BorderThickness="0" Padding="25,0,8,0"
+                           FontSize="10.5" VerticalContentAlignment="Center" ToolTip="Search settings"/>
+                  <TextBlock Text="⌕" Foreground="{DynamicResource ThemeDimBrush}" FontSize="15" Margin="8,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                  <TextBlock Text="Cari pengaturan…" Foreground="{DynamicResource ThemeDimBrush}" FontSize="10.5" Margin="27,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding Text, ElementName=SettingsSidebarSearchBox}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </Grid>
+              </Border>
+              <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="6,4,6,12">
+                  <TextBlock x:Name="SettingsPreferencesGroupHeader" Text="PREFERENCES &amp; EXTENSIONS" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold"
+                             FontFamily="{StaticResource Mono}" Margin="9,9,6,5"/>
+                  <Button x:Name="SettingsOverviewButton" Tag="general" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}"
+                          Background="#1D1638" BorderBrush="{DynamicResource ThemeAccentBrush}" Margin="0,1" ToolTip="Editor, appearance, dan behavior aplikasi">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="⚙" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="11" Margin="0,0,8,0"/>
+                      <TextBlock Text="General &amp; Appearance"/>
+                    </StackPanel>
+                  </Button>
+                  <Button x:Name="SettingsExtensionsButton" Tag="extensions" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="▧" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="11" Margin="0,0,8,0"/>
+                      <TextBlock Text="Built-in Features"/>
+                    </StackPanel>
+                  </Button>
+
+                  <TextBlock x:Name="SettingsCloudGroupHeader" Text="CLOUD INTEGRATIONS" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold"
+                             FontFamily="{StaticResource Mono}" Margin="9,17,6,5"/>
+                  <Button x:Name="SettingsVercelButton" Tag="vercel" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <DockPanel>
+                      <TextBlock Text="Vercel API"/>
+                    </DockPanel>
+                  </Button>
+                  <Button x:Name="SettingsCloudflareButton" Tag="cloudflare" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Cloudflare Pages"/>
+                  </Button>
+                  <Button x:Name="SettingsRailwayButton" Tag="railway" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Railway Platform"/>
+                  </Button>
+
+                  <TextBlock x:Name="SettingsDeveloperGroupHeader" Text="DEVELOPER TOOLS" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold"
+                             FontFamily="{StaticResource Mono}" Margin="9,17,6,5"/>
+                  <Button x:Name="SettingsLinkGaibButton" Tag="linkgaib" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Link Gaib &amp; Edge Tunnels" TextTrimming="CharacterEllipsis"/>
+                  </Button>
+                  <Button x:Name="SettingsGitHubButton" Tag="github" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Git &amp; Source Control"/>
+                  </Button>
+
+                  <TextBlock x:Name="SettingsSecurityGroupHeader" Text="SECURITY" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold"
+                             FontFamily="{StaticResource Mono}" Margin="9,17,6,5"/>
+                  <Button x:Name="SettingsSecurityButton" Tag="security" Click="SettingsSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <DockPanel>
+                      <TextBlock DockPanel.Dock="Right" Text="●" Foreground="#34D399" FontSize="8" VerticalAlignment="Center" Margin="6,0,2,0"/>
+                      <TextBlock Text="Security &amp; DPAPI Keystore" TextTrimming="CharacterEllipsis"/>
+                    </DockPanel>
+                  </Button>
+                  <TextBlock x:Name="SettingsSidebarNoResults" Text="Tidak ada pengaturan yang cocok." Foreground="{DynamicResource ThemeDimBrush}" FontSize="10"
+                             TextWrapping="Wrap" Margin="9,12,8,0" Visibility="Collapsed"/>
+                </StackPanel>
+              </ScrollViewer>
+            </Grid>
+
+            <Grid x:Name="EnvironmentSidebarContent" Grid.Row="0" Visibility="Collapsed">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Border Grid.Row="0" BorderBrush="#231B42" BorderThickness="0,0,0,1" Padding="12,0,8,0">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="＋" Style="{StaticResource IconToolbarButton}" Click="EnvironmentSidebarAdd_Click"
+                          ToolTip="Tambah environment variable" Width="24" Height="24"/>
+                  <TextBlock Text="ENVIRONMENT &amp; SECRETS" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                </DockPanel>
+              </Border>
+              <Border Grid.Row="1" Margin="10,4,10,5" Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="5">
+                <Grid>
+                  <TextBox x:Name="EnvironmentSidebarSearchBox" TextChanged="EnvironmentSidebarSearch_TextChanged"
+                           Background="Transparent" Foreground="{DynamicResource ThemeSoftBrush}" BorderThickness="0" Padding="25,0,8,0"
+                           FontSize="10.5" VerticalContentAlignment="Center" ToolTip="Cari variabel environment"/>
+                  <TextBlock Text="⌕" Foreground="{DynamicResource ThemeDimBrush}" FontSize="15" Margin="8,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                  <TextBlock Text="Cari variabel…" Foreground="{DynamicResource ThemeDimBrush}" FontSize="10.5" Margin="27,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding Text, ElementName=EnvironmentSidebarSearchBox}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </Grid>
+              </Border>
+              <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="6,4,6,12">
+                  <TextBlock Text="TARGET PROJECT" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold" FontFamily="{StaticResource Mono}" Margin="9,8,6,5"/>
+                  <Border Margin="4,0,4,10" Background="#1A1333" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" CornerRadius="6" Padding="9,8">
+                    <StackPanel>
+                      <TextBlock x:Name="EnvironmentSidebarProjectText" Text="Current project" Foreground="{DynamicResource ThemeSoftBrush}" FontSize="10.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                      <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Ellipse Width="6" Height="6" Fill="#34D399" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="DPAPI encrypted · local" Foreground="{DynamicResource ThemeDimBrush}" FontSize="8.5"/>
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+
+                  <TextBlock x:Name="EnvironmentVariableGroupHeader" Text="KATEGORI VARIABEL" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold"
+                             FontFamily="{StaticResource Mono}" Margin="9,8,6,5"/>
+                  <Button x:Name="EnvironmentAllButton" Tag="all" Click="EnvironmentSidebar_Click" Style="{StaticResource SidebarItemButton}"
+                          Background="#1D1638" BorderBrush="{DynamicResource ThemeAccentBrush}" Margin="0,1">
+                    <DockPanel>
+                      <TextBlock x:Name="EnvironmentAllCountText" DockPanel.Dock="Right" Text="0" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="8.5" FontWeight="Bold" FontFamily="{StaticResource Mono}" VerticalAlignment="Center"/>
+                      <TextBlock Text="All Variables"/>
+                    </DockPanel>
+                  </Button>
+                  <Button x:Name="EnvironmentSecretsButton" Tag="secret" Click="EnvironmentSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <DockPanel>
+                      <TextBlock x:Name="EnvironmentSecretsCountText" DockPanel.Dock="Right" Text="0" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="8.5" FontWeight="Bold" FontFamily="{StaticResource Mono}" VerticalAlignment="Center"/>
+                      <TextBlock Text="Production Secrets"/>
+                    </DockPanel>
+                  </Button>
+                  <Button x:Name="EnvironmentPublicButton" Tag="public" Click="EnvironmentSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <DockPanel>
+                      <TextBlock x:Name="EnvironmentPublicCountText" DockPanel.Dock="Right" Text="0" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="8.5" FontWeight="Bold" FontFamily="{StaticResource Mono}" VerticalAlignment="Center"/>
+                      <TextBlock Text="Public Config"/>
+                    </DockPanel>
+                  </Button>
+
+                  <TextBlock x:Name="EnvironmentTargetGroupHeader" Text="TARGET ENVIRONMENT" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" FontWeight="Bold"
+                             FontFamily="{StaticResource Mono}" Margin="9,17,6,5"/>
+                  <Button x:Name="EnvironmentProductionButton" Tag="target:Production" Click="EnvironmentSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Production"/>
+                  </Button>
+                  <Button x:Name="EnvironmentStagingButton" Tag="target:Staging" Click="EnvironmentSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Staging"/>
+                  </Button>
+                  <Button x:Name="EnvironmentDevelopmentButton" Tag="target:Development" Click="EnvironmentSidebar_Click" Style="{StaticResource SidebarItemButton}" Margin="0,1">
+                    <TextBlock Text="Development"/>
+                  </Button>
+                  <TextBlock x:Name="EnvironmentSidebarNoResults" Text="Tidak ada variabel yang cocok." Foreground="{DynamicResource ThemeDimBrush}" FontSize="10"
+                             TextWrapping="Wrap" Margin="9,12,8,0" Visibility="Collapsed"/>
+                </StackPanel>
+              </ScrollViewer>
+            </Grid>
+
+            <!-- 3. Deploy / Git / Search Sidebar Hosts -->
+            <ContentControl x:Name="DeployHost" Grid.Row="0" Visibility="Collapsed" Background="{DynamicResource ThemePopupBrush}"/>
+            <ContentControl x:Name="GitHost" Grid.Row="0" Visibility="Collapsed" Background="{DynamicResource ThemePopupBrush}"/>
+            <ContentControl x:Name="SearchHost" Grid.Row="0" Visibility="Collapsed" Background="{DynamicResource ThemePopupBrush}"/>
+
+            <Border Grid.Row="1" Background="{DynamicResource ThemeSeparatorBrush}"/>
+
+            <!-- Bottom DEPUP CLOUD Embedded Action Box matching Stitch AI -->
+            <Border x:Name="SidebarActionsPanel" Grid.Row="2" Background="#110B22" Padding="12,10,12,12">
+              <Grid>
+                <StackPanel x:Name="DefaultSidebarActionContent">
+                  <DockPanel Margin="1,0,1,8">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                      <Ellipse Width="6" Height="6" Fill="#A855F7" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                      <TextBlock Text="v2.4" FontFamily="{StaticResource Mono}" FontSize="9.5" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontWeight="Bold"/>
+                    </StackPanel>
+                    <TextBlock Text="DEPUP CLOUD" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                  </DockPanel>
+                  <Button x:Name="SidebarDeployButton" Content="🚀  Deploy to Cloud" Tag="deploy" AutomationProperties.HelpText="RequiresCloud" Style="{StaticResource PrimaryButton}" HorizontalContentAlignment="Center" Click="Nav_Click" Margin="0,0,0,6" Height="34" FontSize="11.5"/>
+                  <Button x:Name="SidebarUploadButton" Content="☁  Upload project bundle" Tag="upload" AutomationProperties.HelpText="RequiresCloud" Background="#1C1536" BorderBrush="{DynamicResource ThemeBorderLightBrush}" HorizontalContentAlignment="Center" Click="Nav_Click" Height="30" Padding="7,3" FontSize="11" FontWeight="Normal"/>
+                  <DockPanel Margin="1,8,1,0">
+                    <TextBlock DockPanel.Dock="Right" Text="Ready" Foreground="#34D399" FontSize="9.5" FontFamily="{StaticResource Mono}" FontWeight="SemiBold"/>
+                    <TextBlock Text="Target: depup.cloud/m" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontFamily="{StaticResource Mono}"/>
+                  </DockPanel>
+                </StackPanel>
+                <StackPanel x:Name="SettingsSidebarActionContent" Visibility="Collapsed">
+                  <DockPanel Margin="1,0,1,7">
+                    <Ellipse DockPanel.Dock="Right" Width="6" Height="6" Fill="#A78BFA" VerticalAlignment="Center"/>
+                    <TextBlock Text="DEPUP CLOUD SYNC" Foreground="#C4B5FD" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                  </DockPanel>
+                  <TextBlock Text="Provider tokens stay encrypted with Windows DPAPI." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5"
+                             TextWrapping="Wrap" Margin="1,0,1,8"/>
+                  <Button Content="⇧  Sinkronkan Sekarang" Tag="RequiresCloud" Click="SettingsSidebarSync_Click" Style="{StaticResource PrimaryButton}"
+                          HorizontalContentAlignment="Center" Height="30" FontSize="10.5"/>
+                </StackPanel>
+                <StackPanel x:Name="EnvironmentSidebarActionContent" Visibility="Collapsed">
+                  <DockPanel Margin="1,0,1,7">
+                    <Ellipse DockPanel.Dock="Right" Width="6" Height="6" Fill="#34D399" VerticalAlignment="Center"/>
+                    <TextBlock Text="DPUP CLOUD CONTROL" Foreground="#C4B5FD" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                  </DockPanel>
+                  <TextBlock Text="Local secrets are protected with Windows DPAPI." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5"
+                             TextWrapping="Wrap" Margin="1,0,1,8"/>
+                  <Button Content="⇧  Simpan &amp; Sinkronkan" Tag="RequiresCloud" Click="EnvironmentSidebarSync_Click" Style="{StaticResource PrimaryButton}"
+                          HorizontalContentAlignment="Center" Height="30" FontSize="10.5"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+
+        <GridSplitter x:Name="SidebarSplitter" Grid.Column="2" Width="5" HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch" Background="{DynamicResource ThemeSeparatorBrush}"
+                      ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" ShowsPreview="True"
+                      Cursor="SizeWE" DragCompleted="SidebarSplitter_DragCompleted"
+                      ToolTip="Tarik untuk mengatur lebar panel Explorer"/>
+
+        <!-- Right Main Content Area + Bottom Terminal/Output/Problems/Depup Logs Panel -->
+        <Grid Grid.Column="3" Background="{DynamicResource ThemeEditorBrush}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition x:Name="BottomPanelSplitterRow" Height="6"/>
+            <RowDefinition x:Name="BottomPanelRow" Height="250" MinHeight="90" MaxHeight="480"/>
+          </Grid.RowDefinitions>
+
+          <ContentControl x:Name="WorkspaceHost" Grid.Row="0">
+            <Grid x:Name="EditorWorkspace" Background="{DynamicResource ThemeEditorBrush}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="AiPanelSplitterColumn" Width="0"/>
+                <ColumnDefinition x:Name="AiPanelColumn" Width="0"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition x:Name="EditorBreadcrumbRow" Height="25"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+
+              <!-- Row 0: Single-Row Editor Tabs + Right Quick Action Toolbar (Stitch AI Cloud IDE design) -->
+              <Border Grid.Row="0" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1">
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,8,0">
+                    <ComboBox x:Name="AppThemeComboBox" Width="170" MinWidth="170" Height="25" Margin="0,0,8,0" FontSize="9.5"
+                              VerticalContentAlignment="Center" SelectionChanged="AppThemeComboBox_SelectionChanged"
+                              ToolTip="Ganti tema warna seluruh DepupCode" ToolTipService.InitialShowDelay="700"
+                              AutomationProperties.Name="Tema tampilan seluruh aplikasi">
+                    </ComboBox>
+                    <Button Content="⌕" Width="27" Padding="0" Margin="0,0,3,0" Click="HeaderFindInFile_Click" FontSize="15" Height="25" Background="{DynamicResource ThemeSurfaceAltBrush}" BorderBrush="#322659" ToolTip="Cari di file aktif (Ctrl+F)"/>
+                    <Button Content="✦" Width="27" Padding="0" Margin="0,0,3,0" Click="FormatDocument_Click" FontSize="13" Height="25" Background="{DynamicResource ThemeSurfaceAltBrush}" BorderBrush="#322659" ToolTip="Format dokumen (Shift+Alt+F)"/>
+                    <Button Content="▱" Width="27" Padding="0" Margin="0,0,3,0" Click="OpenFolder_Click" FontSize="15" Height="25" Background="{DynamicResource ThemeSurfaceAltBrush}" BorderBrush="#322659" ToolTip="Buka folder workspace (Ctrl+O)"/>
+                    <Button Content="▣" Width="27" Padding="0" Click="Save_Click" FontSize="14" Height="25" Style="{StaticResource PrimaryButton}" ToolTip="Simpan file (Ctrl+S)"/>
+                    <Button Content="⋯" Width="27" Padding="0" Click="EditorTabActions_Click" FontSize="15" Height="25" Background="{DynamicResource ThemeSurfaceAltBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" ToolTip="Aksi tab editor"/>
+                  </StackPanel>
+                  <TabControl x:Name="EditorTabs" Grid.Column="0" Background="Transparent" BorderThickness="0" SelectionChanged="EditorTabs_SelectionChanged"/>
+                </Grid>
+              </Border>
+
+              <!-- Row 1: Slim Breadcrumbs Bar matching Stitch AI -->
+              <Border x:Name="EditorBreadcrumbBar" Grid.Row="1" Background="{DynamicResource ThemeEditorBrush}" BorderBrush="#1F163B" BorderThickness="0,0,0,1" Padding="14,0">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="Ctrl+= / Ctrl+- Zoom UI" Foreground="{DynamicResource ThemeDimBrush}" FontSize="9.5" FontFamily="{StaticResource Mono}" VerticalAlignment="Center"/>
+                  <TextBlock x:Name="BreadcrumbText" Text="Selamat datang di Depup Code" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="11" FontFamily="{StaticResource Mono}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+              </Border>
+
+              <!-- Row 2: Code Editor + Find/Replace Floating Bar + Minimap -->
+              <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition x:Name="HtmlPreviewSplitColumn" Width="0"/>
+                  <ColumnDefinition x:Name="HtmlPreviewColumn" Width="0"/>
+                  <ColumnDefinition x:Name="MinimapSplitColumn" Width="5"/>
+                  <ColumnDefinition x:Name="MinimapColumn" Width="108"/>
+                </Grid.ColumnDefinitions>
+
+                <avalon:TextEditor x:Name="CodeEditor" Grid.Column="0" ShowLineNumbers="True" FontFamily="{StaticResource Mono}" FontSize="13"
+                                   Background="{DynamicResource ThemeEditorBrush}" Foreground="{DynamicResource ThemePrimaryBrush}" LineNumbersForeground="{DynamicResource ThemeLineNumberBrush}" WordWrap="False"
+                                   VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                   ContextMenuOpening="CodeEditor_ContextMenuOpening">
+                  <avalon:TextEditor.ContextMenu>
+                    <ContextMenu Background="{DynamicResource ThemeMenuBrush}" Foreground="{DynamicResource ThemePrimaryBrush}"
+                                 BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" Padding="4" HasDropShadow="True">
+                      <ContextMenu.Resources>
+                        <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource SubMenuItemStyle}"/>
+                        <Style TargetType="{x:Type Separator}">
+                          <Setter Property="Margin" Value="8,3"/>
+                          <Setter Property="Template">
+                            <Setter.Value>
+                              <ControlTemplate TargetType="Separator"><Border Height="1" Background="{DynamicResource ThemeSeparatorBrush}"/></ControlTemplate>
+                            </Setter.Value>
+                          </Setter>
+                        </Style>
+                      </ContextMenu.Resources>
+                      <MenuItem Header="Show Preview" Click="ShowHtmlPreview_Click" Visibility="Collapsed"/>
+                      <MenuItem Header="Open Automatically on Server Start" IsCheckable="True"
+                                Click="ToggleAutoHtmlPreview_Click" Visibility="Collapsed"/>
+                      <Separator Visibility="Collapsed"/>
+                      <MenuItem Header="Go to Definition" InputGestureText="F12" Click="GoToDefinition_Click"/>
+                      <MenuItem Header="Go to Symbol in File" InputGestureText="Ctrl+Shift+O" Click="GoToSymbolInFile_Click"/>
+                      <MenuItem Header="Find All References" InputGestureText="Shift+F12" Click="LanguageReferences_Click"/>
+                      <MenuItem Header="Rename Symbol" InputGestureText="F2" Click="LanguageRename_Click"/>
+                      <MenuItem Header="Code Actions" InputGestureText="Ctrl+." Click="LanguageCodeActions_Click"/>
+                      <MenuItem Header="Trigger IntelliSense" InputGestureText="Ctrl+Space" Click="LanguageCompletion_Click"/>
+                      <MenuItem Header="Show Hover Information" Click="LanguageHover_Click"/>
+                      <Separator/>
+                      <MenuItem Header="Format Document" InputGestureText="Shift+Alt+F" Click="FormatDocument_Click"/>
+                    </ContextMenu>
+                  </avalon:TextEditor.ContextMenu>
+                </avalon:TextEditor>
+
+                <!-- VS Code Inline Find & Replace Overlay Bar -->
+                <Border x:Name="InlineFindBar" Grid.Column="0" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Margin="0,8,18,0" Background="{DynamicResource ThemePopupBrush}" BorderBrush="#4B3A93" BorderThickness="1" CornerRadius="8" Padding="10,8" Width="380">
+                  <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="16" Opacity="0.55" ShadowDepth="4"/>
+                  </Border.Effect>
+                  <StackPanel>
+                    <DockPanel>
+                      <Button DockPanel.Dock="Right" Content="✕" Width="24" Height="24" Padding="0" Background="Transparent" BorderThickness="0" Click="CloseFindBar_Click" ToolTip="Close (Esc)"/>
+                      <Button DockPanel.Dock="Right" Content="↓" Width="26" Height="24" Padding="0" Margin="4,0,2,0" Click="FindNext_Click" ToolTip="Next Match (Enter)"/>
+                      <Button DockPanel.Dock="Right" Content="↑" Width="26" Height="24" Padding="0" Margin="4,0,0,0" Click="FindPrev_Click" ToolTip="Previous Match (Shift+Enter)"/>
+                      <CheckBox x:Name="FindMatchCaseCheck" DockPanel.Dock="Right" Content="Aa" Foreground="#C4B5FD" VerticalAlignment="Center" Margin="6,0,2,0" FontSize="10.5" Checked="FindQuery_Changed" Unchecked="FindQuery_Changed"/>
+                      <TextBox x:Name="InlineFindBox" Height="26" Padding="7,2" FontSize="12" FontFamily="{StaticResource Mono}"
+                               TextChanged="FindQuery_Changed" KeyDown="InlineFindBox_KeyDown" ToolTip="Find in current file"/>
+                    </DockPanel>
+                    <DockPanel x:Name="InlineReplaceRow" Margin="0,6,0,0" Visibility="Collapsed">
+                      <Button DockPanel.Dock="Right" Content="All" Width="36" Height="24" Padding="0" Margin="4,0,0,0" FontSize="10.5" Click="ReplaceAll_Click" ToolTip="Replace All"/>
+                      <Button DockPanel.Dock="Right" Content="Replace" Width="58" Height="24" Padding="0" Margin="4,0,0,0" FontSize="10.5" Click="ReplaceOne_Click" ToolTip="Replace Next"/>
+                      <TextBox x:Name="InlineReplaceBox" Height="26" Padding="7,2" FontSize="12" FontFamily="{StaticResource Mono}" ToolTip="Replace with..."/>
+                    </DockPanel>
+                    <TextBlock x:Name="InlineFindStatus" Text="Ketik kata kunci untuk mencari di file aktif." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10" Margin="2,5,0,0" FontFamily="{StaticResource Mono}"/>
+                  </StackPanel>
+                </Border>
+
+                <GridSplitter x:Name="HtmlPreviewSplitter" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"
+                              Background="{DynamicResource ThemeSeparatorBrush}" Cursor="SizeWE" Visibility="Collapsed"/>
+                <Border x:Name="HtmlPreviewHost" Grid.Column="2" Visibility="Collapsed" Background="{DynamicResource ThemePanelBrush}"
+                        BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,0">
+                  <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1" Padding="10,0">
+                      <DockPanel LastChildFill="True">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                          <Button x:Name="HtmlPreviewAnalyzeButton" Content="AI Check" Padding="7,0" Height="24" Margin="2,0"
+                                  Background="#33292445" BorderBrush="{DynamicResource ThemeAccentBrush}" Foreground="{DynamicResource ThemeAccentSoftBrush}"
+                                  FontSize="10" Click="AnalyzeHtmlPreview_Click" ToolTip="Periksa error runtime preview dan analisis kode dengan AI"/>
+                          <Button Content="↗" Width="27" Height="24" Padding="0" Margin="2,0" Click="OpenHtmlPreviewInBrowser_Click"
+                                  ToolTip="Buka alamat server di browser" Visibility="Collapsed" x:Name="HtmlPreviewExternalButton"/>
+                          <Button Content="⟳" Width="27" Height="24" Padding="0" Margin="2,0" Click="RefreshHtmlPreview_Click" ToolTip="Muat ulang preview"/>
+                          <Button Content="✕" Width="27" Height="24" Padding="0" Margin="2,0" Click="CloseHtmlPreview_Click" ToolTip="Tutup preview"/>
+                        </StackPanel>
+                        <TextBlock x:Name="HtmlPreviewTitle" Text="LIVE PREVIEW" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="9.5"
+                                   FontWeight="SemiBold" FontFamily="{StaticResource Mono}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                      </DockPanel>
+                    </Border>
+                    <wv2:WebView2 x:Name="HtmlPreviewWebView" Grid.Row="1"/>
+                  </Grid>
+                </Border>
+
+                <GridSplitter x:Name="MinimapSplitter" Grid.Column="3" Width="5" HorizontalAlignment="Stretch" Background="{DynamicResource ThemeSeparatorBrush}"/>
+                <Grid x:Name="MinimapPanel" Grid.Column="4" Background="{DynamicResource ThemeActivityBrush}">
+                  <Grid.RowDefinitions><RowDefinition Height="20"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                  <TextBlock Grid.Row="0" Text="MINIMAP" FontSize="8.5" FontWeight="Bold" Foreground="{DynamicResource ThemeLineNumberBrush}" Margin="7,3" HorizontalAlignment="Center"/>
+                  <controls:EditorMinimap x:Name="MinimapView" Grid.Row="1" Background="{DynamicResource ThemeActivityBrush}" Foreground="{DynamicResource ThemeAccentSoftBrush}"
+                                          Cursor="Hand" ToolTip="Klik untuk berpindah ke bagian kode"/>
+                </Grid>
+
+                <!-- VS Code-like welcome background: visible only while no document tab is open. -->
+                <Grid x:Name="WelcomeBackground" Grid.ColumnSpan="5" Panel.ZIndex="20" Visibility="Collapsed"
+                      Background="{DynamicResource ThemeEditorBrush}">
+                  <StackPanel Width="500" MaxWidth="620" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,18">
+                      <Border Width="54" Height="54" CornerRadius="14" Background="{DynamicResource ThemeSurfaceBrush}"
+                              BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" Padding="7" Margin="0,0,14,0">
+                        <Image Source="pack://application:,,,/Assets/depup.png" Stretch="Uniform"/>
+                      </Border>
+                      <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Depup Code" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="24" FontWeight="SemiBold"/>
+                        <TextBlock Text="IDE untuk mengembangkan dan menerbitkan project" Foreground="{DynamicResource ThemeMutedBrush}"
+                                   FontSize="11.5" Margin="1,4,0,0"/>
+                      </StackPanel>
+                    </StackPanel>
+                    <TextBlock Text="Mulai bekerja" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="12" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                      <Button Content="Buka Folder" Style="{StaticResource ConfirmSecondaryButton}" Width="142" Margin="0,0,8,0"
+                              Click="OpenFolder_Click" ToolTip="Pilih workspace untuk mulai mengedit (Ctrl+O)"/>
+                      <Button Content="File Baru" Style="{StaticResource PrimaryButton}" Width="142" Height="34" Padding="14,0"
+                              Click="HeaderNewFile_Click" ToolTip="Buat dokumen baru (Ctrl+N)"/>
+                    </StackPanel>
+                    <Border Margin="0,20,0,0" Padding="14,10" Background="{DynamicResource ThemePanelBrush}"
+                            BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="1" CornerRadius="8">
+                      <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel>
+                          <TextBlock Text="Ctrl+P" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontFamily="{StaticResource Mono}"
+                                     FontSize="10.5" FontWeight="SemiBold"/>
+                          <TextBlock Text="Cari file dan workspace" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                          <TextBlock Text="Shift+Alt+F" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontFamily="{StaticResource Mono}"
+                                     FontSize="10.5" FontWeight="SemiBold"/>
+                          <TextBlock Text="Rapikan format kode" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10" Margin="0,4,0,0"/>
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </StackPanel>
+                </Grid>
+              </Grid>
+
+              <GridSplitter x:Name="AiPanelSplitter" Grid.Column="1" Grid.RowSpan="3" Width="5"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            Background="{DynamicResource ThemeSeparatorBrush}" ResizeDirection="Columns"
+                            ResizeBehavior="PreviousAndNext" Cursor="SizeWE" Visibility="Collapsed"/>
+              <Border x:Name="AiPanelBorder" Grid.Column="2" Grid.RowSpan="3"
+                      Background="{DynamicResource ThemeSidebarBrush}"
+                      BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="1,0,0,0" Visibility="Collapsed">
+                <views:ChatView x:Name="AiChatViewRoot"/>
+              </Border>
+            </Grid>
+          </ContentControl>
+
+          <GridSplitter x:Name="BottomPanelSplitter" Grid.Row="1" Height="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Background="{DynamicResource ThemeBorderLightBrush}" Cursor="SizeNS" ShowsPreview="True"
+                        ToolTip="Tarik untuk mengatur tinggi panel terminal"/>
+
+          <!-- Bottom Terminal Panel with Stitch AI Header & VS Code Interactive Signal Controls (Ctrl+C, Ctrl+Z, Ctrl+L) -->
+          <Grid Grid.Row="2" Background="{DynamicResource ThemeTerminalBrush}">
+            <TabControl x:Name="BottomTabs" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" ItemContainerStyle="{StaticResource PanelTab}">
+              <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                  <Grid KeyboardNavigation.TabNavigation="Local" SnapsToDevicePixels="True">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Background="{TemplateBinding Background}" MinHeight="32">
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                      <TabPanel Grid.Column="0" IsItemsHost="True" KeyboardNavigation.TabIndex="1" Background="Transparent"/>
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,9,0">
+                        <TextBlock x:Name="TerminalShellLabel" Text="PowerShell" MaxWidth="210" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ThemeDimBrush}" FontSize="10" FontFamily="{StaticResource Mono}" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip="Terminal shell aktif"/>
+                        <Button x:Name="AnalyzeTerminalErrorButton" Content="⚠ Analisis AI" Height="24" Padding="7,0" Margin="0,0,5,0"
+                                Background="#33292445" BorderBrush="{DynamicResource ThemeAccentBrush}" Foreground="{DynamicResource ThemeAccentSoftBrush}"
+                                FontSize="10" Click="AnalyzeTerminalError_Click" Visibility="Collapsed" ToolTip="Kirim error run terakhir ke AI chat"/>
+                        <Button Style="{StaticResource IconToolbarButton}" ToolTip="New Terminal (Ctrl+Shift+`)" Click="NewTerminal_Click">
+                          <TextBlock Text="＋" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button Style="{StaticResource IconToolbarButton}" ToolTip="Hentikan proses terminal (Ctrl+C)" Click="StopTerminal_Click">
+                          <Viewbox Width="11" Height="11"><Canvas Width="24" Height="24"><Rectangle Canvas.Left="4" Canvas.Top="4" Width="16" Height="16" RadiusX="2" RadiusY="2" Fill="#F87171"/></Canvas></Viewbox>
+                        </Button>
+                        <Button Style="{StaticResource IconToolbarButton}" ToolTip="Mulai ulang sesi PowerShell di folder workspace" Click="RestartTerminal_Click">
+                          <Viewbox Width="12" Height="12"><Canvas Width="24" Height="24"><Path Data="M20,11 A8,8 0 1,0 19,16 M20,4 L20,11 L13,11" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/></Canvas></Viewbox>
+                        </Button>
+                        <Button Style="{StaticResource IconToolbarButton}" ToolTip="Close active terminal" Click="CloseTerminal_Click">
+                          <Viewbox Width="12" Height="12"><Canvas Width="24" Height="24"><Path Data="M3,6 L21,6 M8,6 L8,4 C8,2.9 8.9,2 10,2 L14,2 C15.1,2 16,2.9 16,4 L16,6 M19,6 L18,20 C18,21.1 17.1,22 16,22 L8,22 C6.9,22 6,21.1 6,20 L5,6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/></Canvas></Viewbox>
+                        </Button>
+                        <Button Style="{StaticResource IconToolbarButton}" ToolTip="Sembunyikan atau tampilkan panel terminal (Ctrl+`)" Click="ToggleBottomPanel_Click">
+                          <Viewbox Width="12" Height="12"><Canvas Width="24" Height="24"><Path Data="M6,9 L12,15 L18,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeLineJoin="Round"/></Canvas></Viewbox>
+                        </Button>
+                      </StackPanel>
+                    </Grid>
+                    <Border Grid.Row="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                      <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                  </Grid>
+                </ControlTemplate>
+              </TabControl.Template>
+              <TabItem Header="TERMINAL  ●">
+                <Grid Background="{DynamicResource ThemeTerminalBrush}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="154"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="38"/>
+                  </Grid.RowDefinitions>
+
+                  <!-- Terminal Output Console (Supports Ctrl+C, Ctrl+Z, Ctrl+L, Direct Typing) -->
+                  <TextBox x:Name="TerminalOutput" Grid.Row="0" Grid.Column="0" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+                           VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                           Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0" FontFamily="{StaticResource Mono}" FontSize="12"
+                           Padding="14,8" Foreground="{DynamicResource ThemeSoftBrush}" CaretBrush="#A855F7" SelectionBrush="{DynamicResource ThemeAccentHoverBrush}"
+                           PreviewKeyDown="TerminalOutput_PreviewKeyDown"/>
+
+                  <ListBox x:Name="TerminalSessionsList" Grid.Row="0" Grid.Column="1" Margin="0,4,5,4" Padding="3"
+                           Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="1"
+                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="TerminalSessionsList_SelectionChanged"
+                           ToolTip="Sesi terminal aktif">
+                    <ListBox.Resources>
+                      <Style TargetType="ListBoxItem">
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryBrush}"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="1,2"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                              <Border x:Name="SessionItemBorder" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="5" Padding="7,6">
+                                <ContentPresenter/>
+                              </Border>
+                              <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                  <Setter TargetName="SessionItemBorder" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                  <Setter TargetName="SessionItemBorder" Property="Background" Value="{DynamicResource ThemeActiveNavBrush}"/>
+                                  <Setter TargetName="SessionItemBorder" Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}"/>
+                                  <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+                                </Trigger>
+                              </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                      </Style>
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&gt;_" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontFamily="{StaticResource Mono}" FontSize="10" Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                       FontFamily="{StaticResource Mono}" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                          </StackPanel>
+                          <TextBlock Text="{Binding DirectoryName}" Foreground="{DynamicResource ThemeDimBrush}" FontSize="8.5" Margin="18,3,0,0"
+                                     TextTrimming="CharacterEllipsis" ToolTip="{Binding WorkingDirectory}"/>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+
+                  <!-- Interactive Command Bar matching Stitch AI + Stop (Ctrl+C) & Clear Controls -->
+                  <Border Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="#231B42" BorderThickness="0,1,0,0" Padding="12,0">
+                    <Grid VerticalAlignment="Center">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBlock x:Name="TerminalPromptText" Grid.Column="0" Text="PS&gt;" MaxWidth="280" TextTrimming="CharacterEllipsis"
+                                 Foreground="#C084FC" FontWeight="Bold" FontSize="11.5" FontFamily="{StaticResource Mono}"
+                                 VerticalAlignment="Center" Margin="0,0,8,0"/>
+                      <TextBox x:Name="TerminalInput" Grid.Column="1"
+                               PreviewKeyDown="TerminalInput_PreviewKeyDown"
+                               Background="{DynamicResource ThemeInputBrush}" Height="27" Padding="9,3" MinWidth="120"
+                               VerticalContentAlignment="Center" FontFamily="{StaticResource Mono}" FontSize="11.5"
+                               BorderBrush="{DynamicResource ThemeButtonSurfaceBrush}" BorderThickness="1" Foreground="{DynamicResource ThemePrimaryBrush}" CaretBrush="#C084FC" SelectionBrush="{DynamicResource ThemeAccentHoverBrush}"
+                               TextWrapping="NoWrap" AcceptsReturn="False" Text=""
+                               ToolTip="Ketik perintah lalu Enter • Ctrl+C: Hentikan proses (npm run dev) • Ctrl+Z: Suspend • Ctrl+L: Clear • Tab: Autocomplete"/>
+                      <Button Grid.Column="2" Content="▶ Run Command" Style="{StaticResource PrimaryButton}" Height="26" Padding="11,0" Margin="8,0,0,0" FontSize="11" Click="RunTerminal_Click" ToolTip="Jalankan perintah (Enter)"/>
+                      <Button Grid.Column="3" Content="⏹ Ctrl+C" Background="#2A1528" BorderBrush="#6E2549" Foreground="#FDA4AF" Height="26" Padding="9,0" Margin="5,0,0,0" FontSize="10.5" Click="StopTerminal_Click" ToolTip="Kirim sinyal Interrupt Ctrl+C untuk menghentikan proses yang berjalan (seperti npm run dev)"/>
+                      <Button Grid.Column="4" Content="Clear" Background="#18122E" BorderBrush="#2E2459" Foreground="{DynamicResource ThemeSecondaryBrush}" Height="26" Padding="9,0" Margin="5,0,0,0" FontSize="10.5" Click="ClearTerminal_Click" ToolTip="Bersihkan layar terminal (Ctrl+L)"/>
+                    </Grid>
+                  </Border>
+                </Grid>
+              </TabItem>
+              <TabItem x:Name="DebugTabItem" Header="RUN &amp; DEBUG">
+                <Grid Background="{DynamicResource ThemeTerminalBrush}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Border Grid.Row="0" Padding="8,5" Background="{DynamicResource ThemeActivityBrush}"
+                          BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1">
+                    <DockPanel LastChildFill="True">
+                      <WrapPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <Button Content="▶ Start / Continue" Padding="8,4" Margin="0,0,5,0" Click="StartOrContinueDebugging_Click" ToolTip="F5"/>
+                        <Button Content="F9 Breakpoint" Padding="8,4" Margin="0,0,5,0" Click="ToggleBreakpoint_Click" ToolTip="Pasang atau hapus breakpoint pada baris aktif"/>
+                        <Button Content="Step Over" Padding="8,4" Margin="0,0,5,0" Click="DebugStepOver_Click" ToolTip="F10"/>
+                        <Button Content="Step Into" Padding="8,4" Margin="0,0,5,0" Click="DebugStepInto_Click" ToolTip="F11"/>
+                        <Button Content="Step Out" Padding="8,4" Margin="0,0,5,0" Click="DebugStepOut_Click" ToolTip="Shift+F11"/>
+                        <Button Content="⏸ Pause" Padding="8,4" Margin="0,0,5,0" Click="DebugPause_Click"/>
+                        <Button Content="■ Stop" Padding="8,4" Click="StopDebugging_Click" ToolTip="Shift+F5"/>
+                      </WrapPanel>
+                      <Button x:Name="AnalyzeDebugErrorButton" DockPanel.Dock="Right" Content="⚠ Analisis AI" Padding="8,4"
+                              Margin="8,0,0,0" Click="AnalyzeDebugError_Click" Visibility="Collapsed"
+                              ToolTip="Kirim error debug terakhir ke AI untuk analisis"/>
+                      <TextBlock x:Name="DebugStatusText" Text="Belum ada sesi debug · F5 untuk setup atau mulai"
+                                 Foreground="{DynamicResource ThemeSecondaryBrush}" VerticalAlignment="Center" Margin="12,0,0,0"
+                                 TextTrimming="CharacterEllipsis" ToolTip="Status debug adapter"/>
+                    </DockPanel>
+                  </Border>
+                  <TabControl Grid.Row="1" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}"
+                              ItemContainerStyle="{StaticResource PanelTab}">
+                    <TabItem Header="CALL STACK">
+                      <ListBox x:Name="DebugStackList" Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0"
+                               Foreground="{DynamicResource ThemePrimaryBrush}" FontFamily="{StaticResource Mono}" FontSize="11"
+                               MouseDoubleClick="DebugStackList_MouseDoubleClick" ToolTip="Klik ganda frame untuk membuka sumbernya"/>
+                    </TabItem>
+                    <TabItem Header="VARIABLES">
+                      <ListBox x:Name="DebugVariablesList" Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0"
+                               Foreground="{DynamicResource ThemePrimaryBrush}" FontFamily="{StaticResource Mono}" FontSize="11"/>
+                    </TabItem>
+                    <TabItem Header="BREAKPOINTS">
+                      <ListBox x:Name="DebugBreakpointsList" Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0"
+                               Foreground="{DynamicResource ThemePrimaryBrush}" FontFamily="{StaticResource Mono}" FontSize="11"
+                               MouseDoubleClick="DebugBreakpointsList_MouseDoubleClick" ToolTip="Klik ganda breakpoint untuk membuka barisnya"/>
+                    </TabItem>
+                    <TabItem x:Name="DebugTerminalTabItem" Header="TERMINAL">
+                      <wv2:WebView2 x:Name="DebugTerminalWebView" ToolTip="Windows ConPTY · xterm.js · input, Unicode, warna, TUI, mouse, dan resize"/>
+                    </TabItem>
+                    <TabItem x:Name="DebugConsoleTabItem" Header="DEBUG CONSOLE">
+                      <TextBox x:Name="DebugConsoleText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+                               VerticalScrollBarVisibility="Auto" Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0"
+                               FontFamily="{StaticResource Mono}" FontSize="11" Padding="10,7" Foreground="{DynamicResource ThemeSoftBrush}"/>
+                    </TabItem>
+                  </TabControl>
+                </Grid>
+              </TabItem>
+              <TabItem Header="OUTPUT">
+                <TextBox x:Name="OutputLog" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                         Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0" FontFamily="{StaticResource Mono}" FontSize="11.5" Padding="12,8" Foreground="{DynamicResource ThemeSecondaryBrush}"/>
+              </TabItem>
+              <TabItem x:Name="ProblemsTabItem" Header="PROBLEMS  0">
+                <Grid Background="{DynamicResource ThemeTerminalBrush}">
+                  <ListBox x:Name="ProblemsList" Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0" Foreground="{DynamicResource ThemePrimaryBrush}"
+                           FontFamily="{StaticResource Mono}" FontSize="11.5" Padding="8,6" SelectionChanged="ProblemsList_SelectionChanged"/>
+                  <TextBlock x:Name="ProblemsEmptyText" Text="✓ Tidak ada masalah sintaks atau konfigurasi yang terdeteksi di workspace."
+                             Foreground="{DynamicResource ThemeDimBrush}" FontFamily="{StaticResource Mono}" FontSize="11.5" Margin="14,12" IsHitTestVisible="False"/>
+                </Grid>
+              </TabItem>
+              <TabItem Header="☁ DEPUP LOGS">
+                <TextBox x:Name="DepupLogText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                         Background="{DynamicResource ThemeTerminalBrush}" BorderThickness="0" FontFamily="{StaticResource Mono}" FontSize="11.5" Padding="12,8" Foreground="#C4B5FD"/>
+              </TabItem>
+            </TabControl>
+
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <!-- Compact status bar -->
+      <Border Grid.Row="2" Background="{DynamicResource ThemeStatusBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="0,1,0,0">
+        <Grid Margin="10,0">
+          <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <TextBlock x:Name="GitStatusText" Grid.Column="0" Text="⑂ main" Foreground="#D4D4D8" VerticalAlignment="Center"
+                     Margin="2,0,14,0" FontSize="10.5" FontFamily="{StaticResource Mono}" Cursor="Hand" MouseLeftButtonUp="StatusBarGit_Click" ToolTip="Klik untuk membuka Source Control"/>
+
+          <Ellipse x:Name="StatusBarTunnelDot" Grid.Column="1" Width="6" Height="6" Fill="#10B981" VerticalAlignment="Center" Margin="0,0,6,0"/>
+          <TextBlock x:Name="TunnelStatusText" Grid.Column="2" Text="Link Gaib: Idle" Foreground="{DynamicResource ThemeMutedBrush}"
+                     VerticalAlignment="Center" FontSize="10.5" FontFamily="{StaticResource Mono}" Cursor="Hand"
+                     MouseLeftButtonUp="StatusBarTunnel_Click" Margin="0,0,16,0" ToolTip="Klik untuk mengelola Link Gaib Tunnel"/>
+
+          <Ellipse x:Name="StatusBarPhpDot" Grid.Column="3" Width="6" Height="6" Fill="#6C6794" VerticalAlignment="Center" Margin="0,0,6,0"/>
+          <TextBlock x:Name="PhpStatusText" Grid.Column="4" Text="PHP: Off" Foreground="{DynamicResource ThemeMutedBrush}"
+                     VerticalAlignment="Center" FontSize="10.5" FontFamily="{StaticResource Mono}" Cursor="Hand"
+                     MouseLeftButtonUp="StatusBarPhp_Click" Margin="0,0,16,0" ToolTip="Klik untuk menjalankan atau menghentikan server PHP lokal"/>
+
+          <TextBlock x:Name="ProjectsCountStatusText" Grid.Column="5" Text="❐ 0 Projects Cached" Foreground="{DynamicResource ThemeMutedBrush}"
+                     VerticalAlignment="Center" FontSize="10.5" Cursor="Hand" MouseLeftButtonUp="HeaderProjects_Click" ToolTip="Klik untuk membuka Projects &amp; Workspaces"/>
+
+          <TextBlock x:Name="DepupCloudText" Grid.Column="6" Text="Checking Depup Cloud…" Foreground="{DynamicResource ThemeAccentSoftBrush}" VerticalAlignment="Center" Margin="14,0" FontSize="10" TextTrimming="CharacterEllipsis"/>
+
+          <TextBlock x:Name="StatusLineText" Grid.Column="7" Text="Ln 1, Col 1" Foreground="{DynamicResource ThemeMutedBrush}" VerticalAlignment="Center" Margin="6,0" FontSize="10.5" FontFamily="{StaticResource Mono}" Cursor="Hand" MouseLeftButtonUp="HeaderGoToLine_Click"/>
+          <TextBlock x:Name="ZoomStatusText" Grid.Column="8" Text="🔍 100%" Foreground="#C4B5FD" VerticalAlignment="Center" Margin="6,0" FontSize="10.5" FontFamily="{StaticResource Mono}" Cursor="Hand" MouseLeftButtonUp="ZoomReset_Click" ToolTip="Zoom Level (Ctrl+= Zoom In, Ctrl+- Zoom Out, Klik atau Ctrl+0 untuk Reset)"/>
+          <TextBlock x:Name="EncodingStatusText" Grid.Column="9" Text="UTF-8" Foreground="{DynamicResource ThemeMutedBrush}" VerticalAlignment="Center" Margin="6,0" FontSize="10.5" FontFamily="{StaticResource Mono}"/>
+          <TextBlock x:Name="LanguageStatusText" Grid.Column="10" Text="TypeScript JSX" Foreground="{DynamicResource ThemeAccentSoftBrush}" VerticalAlignment="Center" Margin="6,0" FontSize="10.5" FontFamily="{StaticResource Mono}"
+                     Cursor="Hand" MouseLeftButtonUp="LanguageStatus_Click"/>
+          <TextBlock x:Name="PrettierStatusButton" Grid.Column="11" Text="✓ Format" Foreground="#34D399" VerticalAlignment="Center" Margin="6,0" FontSize="10.5"
+                     Cursor="Hand" MouseLeftButtonUp="FormatDocument_Click" ToolTip="Format otomatis sesuai tipe file (Shift+Alt+F)"/>
+
+          <!-- Status-only footer; account and settings live at the bottom of the activity bar. -->
+          <Button x:Name="OfflineModeToggleButton" Grid.Column="12" Content="🟢 Mode: Online" Padding="8,2" Margin="6,0,4,0" Height="22" FontSize="10"
+                  Background="#0F2A22" BorderBrush="#1E5A45" Foreground="#34D399" Click="ToggleOfflineMode_Click" ToolTip="Switch antara Online Mode (Live Fetch) dan Offline Mode (Local Cache)"/>
+        </Grid>
+      </Border>
+
+      <!-- In-app confirmation overlay to keep destructive actions inside the DepupCode window. -->
+      <Grid x:Name="DeleteConfirmationOverlay" Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="1000"
+            Visibility="Collapsed" Background="#99070A12" Focusable="True"
+            PreviewKeyDown="DeleteConfirmationOverlay_PreviewKeyDown">
+        <Border Width="430" MaxHeight="260" Margin="20" Padding="20"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Background="{DynamicResource ThemePopupBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}"
+                BorderThickness="1" CornerRadius="12">
+          <Border.Effect>
+            <DropShadowEffect Color="#05030C" BlurRadius="28" ShadowDepth="8" Opacity="0.48"/>
+          </Border.Effect>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,17">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="42"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
+              </Grid.ColumnDefinitions>
+              <Border Width="36" Height="36" CornerRadius="10" Background="#2A1720" BorderBrush="#653043" BorderThickness="1">
+                <TextBlock Text="!" Foreground="#FB7185" FontSize="20" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Konfirmasi penghapusan" Foreground="{DynamicResource ThemePrimaryBrush}"
+                           FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="Tindakan ini tidak dapat dibatalkan" Foreground="{DynamicResource ThemeDimBrush}"
+                           FontSize="10" Margin="0,3,0,0"/>
+              </StackPanel>
+              <Button Grid.Column="2" Content="×" Width="28" Height="28" Padding="0" FontSize="18"
+                      Style="{StaticResource IconToolbarButton}" Click="DeleteConfirmationCancel_Click"
+                      ToolTip="Tutup konfirmasi" VerticalAlignment="Top"/>
+            </Grid>
+            <TextBlock x:Name="DeleteConfirmationMessage" Grid.Row="1" Foreground="{DynamicResource ThemeSoftBrush}"
+                       FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            <Border Grid.Row="2" Margin="0,12,0,18" Padding="10,8" CornerRadius="6"
+                    Background="#25131D" BorderBrush="#512638" BorderThickness="1">
+              <TextBlock x:Name="DeleteConfirmationDetails" Foreground="#E6A7B2" FontSize="10.5"
+                         TextWrapping="Wrap"/>
+            </Border>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button x:Name="DeleteConfirmationCancelButton" Content="Batal" Style="{StaticResource ConfirmSecondaryButton}"
+                      Margin="0,0,8,0" Click="DeleteConfirmationCancel_Click"/>
+              <Button Content="Hapus Permanen" Style="{StaticResource ConfirmDangerButton}"
+                      Click="DeleteConfirmationConfirm_Click"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

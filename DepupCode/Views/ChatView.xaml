@@ -1,0 +1,124 @@
+<UserControl x:Class="DepupCode.Views.ChatView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="340" Background="{DynamicResource ThemeSidebarBrush}"
+             Foreground="{DynamicResource ThemePrimaryBrush}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="42"/>
+      <RowDefinition Height="37"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="22"/>
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0" Background="{DynamicResource ThemeActivityBrush}"
+            BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1" Padding="12,0,8,0">
+      <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button Content="⚙" Width="27" Height="26" Margin="1,0" FontSize="14"
+                  Background="Transparent" BorderThickness="0" Foreground="{DynamicResource ThemeMutedBrush}"
+                  Click="Configure_Click" ToolTip="Pengaturan provider AI dan model"/>
+          <Button Content="×" Width="27" Height="26" Margin="1,0" FontSize="17"
+                  Background="Transparent" BorderThickness="0" Foreground="{DynamicResource ThemeMutedBrush}"
+                  Click="Close_Click" ToolTip="Tutup panel AI"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="✦" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="15" Margin="0,0,8,0"/>
+          <TextBlock Text="AI AGENT" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Satu baris kontrol: pemilih sesi (dengan tombol sesi baru) + mode agent. -->
+    <Grid Grid.Row="1" Margin="9,4,8,3">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Border Grid.Column="0" Height="28" Margin="0,0,7,0" CornerRadius="8"
+              Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}"
+              BorderThickness="1">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="SessionHistoryButton" Grid.Column="0" Padding="9,0,3,0" Background="Transparent"
+                  BorderThickness="0" HorizontalContentAlignment="Stretch" Click="SessionHistory_Click"
+                  ToolTip="Riwayat sesi chat">
+            <DockPanel LastChildFill="True">
+              <TextBlock DockPanel.Dock="Right" Text="⌄" Margin="5,0,1,0" FontSize="10"
+                         Foreground="{DynamicResource ThemeMutedBrush}" VerticalAlignment="Center"/>
+              <TextBlock x:Name="SessionTitleText" Text="Chat baru" FontSize="10.5"
+                         Foreground="{DynamicResource ThemePrimaryBrush}" VerticalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+          </Button>
+          <Border Grid.Column="1" Width="1" Margin="0,7" Background="{DynamicResource ThemeSeparatorBrush}"/>
+          <Button x:Name="NewChatButton" Grid.Column="2" Content="＋" Width="27" Height="26" Margin="1,0,2,0"
+                  Padding="0" Background="Transparent" BorderThickness="0" FontSize="15"
+                  Foreground="{DynamicResource ThemeAccentSoftBrush}" Click="NewChat_Click"
+                  ToolTip="Sesi chat baru"/>
+        </Grid>
+      </Border>
+
+      <ComboBox x:Name="ModeCombo" Grid.Column="1" Width="136" Height="28" FontSize="10.5"
+                SelectedIndex="0" SelectionChanged="ModeCombo_SelectionChanged" ToolTip="Pilih agent atau mode chat">
+        <ComboBoxItem Content="⚡ Agent" Tag="Agent"/>
+        <ComboBoxItem Content="▢ Ask" Tag="Ask"/>
+        <ComboBoxItem Content="☷ Plan" Tag="Plan"/>
+        <ComboBoxItem Content="Debugger" Tag="Debugger"/>
+        <ComboBoxItem Content="Modernize" Tag="Modernize"/>
+        <ComboBoxItem Content="MSBuild" Tag="Build"/>
+        <ComboBoxItem Content="Test" Tag="Test"/>
+        <ComboBoxItem Content="🛡 Audit" Tag="SecurityAudit" ToolTip="Audit keamanan proyek secara read-only"/>
+        <ComboBoxItem Content="＋ Buat custom agent…" Tag="CreateCustomAgent"/>
+      </ComboBox>
+    </Grid>
+
+    <ScrollViewer x:Name="MessagesScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled" Padding="12,12,10,8">
+      <StackPanel x:Name="MessagesPanel"/>
+    </ScrollViewer>
+
+    <Border Grid.Row="3" Margin="10,6,10,7" Padding="11,8,9,7" CornerRadius="11"
+            Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="PromptBox" Grid.Row="0" MinHeight="54" MaxHeight="150" Padding="2,1,2,6"
+                 AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                 BorderThickness="0" Background="Transparent" Foreground="{DynamicResource ThemePrimaryBrush}"
+                 FontSize="12" KeyDown="PromptBox_KeyDown" ToolTip="Tulis instruksi untuk AI Agent"/>
+        <Grid Grid.Row="1" Margin="0,4,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock x:Name="ModelText" Text="Model belum diatur" Foreground="{DynamicResource ThemeMutedBrush}"
+                       FontSize="9.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="180"/>
+          </StackPanel>
+          <Button x:Name="SendButton" Grid.Column="1" Content="↑" Width="29" Height="27" Padding="0"
+                  Style="{DynamicResource PrimaryButton}" FontSize="16" Click="SendButton_Click"
+                  ToolTip="Kirim (Enter)"/>
+        </Grid>
+      </Grid>
+    </Border>
+
+    <DockPanel Grid.Row="4" Margin="12,0,10,0" LastChildFill="False">
+      <TextBlock x:Name="WorkspaceText" Text="Workspace belum dibuka" Foreground="{DynamicResource ThemeDimBrush}"
+                 FontSize="9" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="135"/>
+      <Button x:Name="SkillsButton" DockPanel.Dock="Right" Content="Skills 0" Padding="2,0" Margin="6,0,0,0"
+              Background="Transparent" BorderThickness="0" Foreground="{DynamicResource ThemeDimBrush}"
+              FontSize="9" VerticalAlignment="Center" Click="Skills_Click" ToolTip="Lihat skill OpenCode yang terdeteksi"/>
+      <TextBlock DockPanel.Dock="Right" x:Name="ApprovalText" Text="✓ Persetujuan tiap aksi"
+                 Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" VerticalAlignment="Center"/>
+    </DockPanel>
+  </Grid>
+</UserControl>

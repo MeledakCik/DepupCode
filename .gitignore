@@ -1,0 +1,14 @@
+# .gitignore for Depup Code
+bin/
+obj/
+.vs/
+.tmp-runtime-smoke/
+*.log
+*.zip
+*.user
+node_modules/
+*.exe
+DepupCode/bin/
+DepupCode/obj/
+tests/**/bin/
+tests/**/obj/

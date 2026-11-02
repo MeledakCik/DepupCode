@@ -1,0 +1,24 @@
+<Window x:Class="DepupCode.Views.InputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Title="Depup Code">
+  <Border Background="#160E2A" BorderBrush="#3A2760" BorderThickness="1" CornerRadius="10" Padding="20" Width="430" MouseLeftButtonDown="Drag">
+    <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="28" ShadowDepth="8" Opacity="0.55"/></Border.Effect>
+    <StackPanel>
+      <DockPanel Margin="0,0,0,4">
+        <Border DockPanel.Dock="Right" Background="#241838" CornerRadius="4" Padding="6,1">
+          <TextBlock Text="DEPUP CODE" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontFamily="Cascadia Code, Consolas" FontSize="9" FontWeight="Bold"/>
+        </Border>
+        <TextBlock x:Name="TitleText" Text="Input" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+      </DockPanel>
+      <TextBlock x:Name="MessageText" Foreground="#94A3B8" FontSize="11.5" TextWrapping="Wrap" Margin="0,2,0,12"/>
+      <TextBox x:Name="InputBox" Height="36" VerticalContentAlignment="Center" FontFamily="Cascadia Code, Consolas" FontSize="12"/>
+      <TextBlock x:Name="HintText" Foreground="#64748B" FontSize="10" Margin="2,6,0,0"/>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+        <Button Content="Batal" MinWidth="76" IsCancel="True" Click="Cancel_Click" Margin="0,0,8,0"/>
+        <Button x:Name="OkButton" Content="Simpan" MinWidth="86" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Ok_Click"/>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../DepupCode/DepupCode.csproj" />
+    <Content Include="../../DepupCode/Assets/Terminal/**/*" Link="Assets/Terminal/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../DepupCode.Tests/SandboxRuntimeScenarios.cs" Link="SandboxRuntimeScenarios.cs" />
+  </ItemGroup>
+</Project>

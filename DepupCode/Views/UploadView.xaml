@@ -1,0 +1,43 @@
+<UserControl x:Class="DepupCode.Views.UploadView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ThemeWindowBrush}">
+  <Grid Margin="28">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <StackPanel Grid.Row="0">
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Text="Upload Project Bundle" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource ThemePrimaryBrush}"/>
+        <Border Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="#4B3A93" BorderThickness="1" CornerRadius="10" Padding="8,3" Margin="11,2,0,0">
+          <TextBlock Text="DEPUP CLOUD &amp; GITHUB" Foreground="#C4B5FD" FontSize="9" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+        </Border>
+      </StackPanel>
+      <TextBlock Text="Unggah folder atau ZIP ke repository GitHub baru atau publikasikan langsung ke Depup Edge CDN (depup.cloud). Folder rahasia dilewati dan .env diimpor terenkripsi (DPAPI)."
+                 Foreground="{DynamicResource ThemeMutedBrush}" Margin="0,5,0,20" TextWrapping="Wrap"/>
+    </StackPanel>
+    <Border Grid.Row="1" Background="{DynamicResource ThemePanelBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20">
+      <StackPanel>
+        <TextBlock Text="Sumber project (Folder atau ZIP)" Foreground="#34D399" FontWeight="Bold"/>
+        <DockPanel Margin="0,10,0,0">
+          <Button Content="Pilih folder" Click="ChooseFolder_Click" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+          <Button Content="Pilih ZIP" Click="ChooseZip_Click" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+          <TextBox x:Name="SourcePathBox" IsReadOnly="True" Height="36" Padding="10,0" VerticalContentAlignment="Center" ToolTip="Pilih folder atau file ZIP"/>
+        </DockPanel>
+        <TextBlock Text="Nama repository / site baru" Foreground="{DynamicResource ThemeMutedBrush}" Margin="0,14,0,5"/>
+        <TextBox x:Name="RepositoryNameBox" Height="36" Padding="10,0" VerticalContentAlignment="Center"/>
+        <CheckBox x:Name="PrivateCheckBox" Content="Repository GitHub private" IsChecked="True" Foreground="{DynamicResource ThemePrimaryBrush}" Margin="0,12,0,0"/>
+        <WrapPanel Margin="0,16,0,0">
+          <Button x:Name="DeployEdgeButton" Tag="RequiresCloud" Content="⚡ Publikasikan ke Depup Edge (depup.cloud)" Style="{StaticResource PrimaryButton}"
+                  Margin="0,0,10,0" Click="DeployEdge_Click"/>
+          <Button x:Name="UploadButton" Tag="RequiresCloud" Content="⎇ Upload ke GitHub Repository"
+                  Click="Upload_Click"/>
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+    <ProgressBar x:Name="UploadProgress" Grid.Row="2" Height="8" Margin="0,14,0,0" IsIndeterminate="False"/>
+    <StackPanel Grid.Row="3" Margin="0,12,0,0">
+      <TextBlock x:Name="StatusText" Foreground="{DynamicResource ThemeMutedBrush}" TextWrapping="Wrap"/>
+      <TextBlock x:Name="RepositoryLink" Foreground="#34D399" Margin="0,8,0,0" Cursor="Hand"
+                 MouseDown="OpenRepository" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

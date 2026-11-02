@@ -1,0 +1,449 @@
+<UserControl x:Class="DepupCode.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ThemeEditorBrush}">
+  <UserControl.Resources>
+    <Style x:Key="SettingsTextBox" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+      <Setter Property="Background" Value="{DynamicResource ThemeInputBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="9,0"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="FontSize" Value="10.5"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="SettingsPasswordBox" TargetType="{x:Type PasswordBox}" BasedOn="{StaticResource {x:Type PasswordBox}}">
+      <Setter Property="Background" Value="{DynamicResource ThemeInputBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="9,0"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="FontSize" Value="10.5"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="SettingsActionButton" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Background" Value="{DynamicResource ThemeSurfaceAltBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLightBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="10,4"/>
+      <Setter Property="Height" Value="29"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
+          <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}"/>
+        </Trigger>
+        <Trigger Property="IsEnabled" Value="False">
+          <Setter Property="Background" Value="#3F3F46"/>
+          <Setter Property="Foreground" Value="#A1A1AA"/>
+          <Setter Property="BorderBrush" Value="#52525B"/>
+          <Setter Property="Cursor" Value="Arrow"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="SettingsCard" TargetType="{x:Type Border}">
+      <Setter Property="Background" Value="{DynamicResource ThemePanelBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid Background="{DynamicResource ThemeEditorBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="31"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0" Background="{DynamicResource ThemeActivityBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,0,0,1" Padding="14,0">
+      <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+          <Ellipse Width="6" Height="6" Fill="#34D399" Margin="0,0,6,0" VerticalAlignment="Center"/>
+          <TextBlock Text="DPAPI Encrypted Store Active" Foreground="#34D399" FontSize="9" FontWeight="SemiBold"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="Settings" Foreground="{DynamicResource ThemeDimBrush}" FontSize="10"/>
+          <TextBlock Text="  ›  " Foreground="{DynamicResource ThemeDimBrush}" FontSize="10"/>
+          <TextBlock Text="User Preferences, Features &amp; Cloud Integrations" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="10" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="20,16,20,18" MaxWidth="1320" HorizontalAlignment="Stretch">
+        <StackPanel>
+            <DockPanel LastChildFill="True">
+              <Border DockPanel.Dock="Right" Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,2,0,0" VerticalAlignment="Top">
+              <TextBlock Text="DPAPI · SECURE" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="8.5" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+            </Border>
+              <TextBlock Text="User Preferences &amp; Integrations" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemePrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+          <TextBlock Text="Atur editor dan modul fitur seperti di VS Code, lalu kelola akun dan provider cloud saat diperlukan."
+                     Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10.5" Margin="0,5,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <WrapPanel Margin="0,14,0,12" VerticalAlignment="Center">
+          <Border Background="{DynamicResource ThemeInputBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="5" Width="290" Height="32" Margin="0,0,9,6">
+            <Grid>
+              <TextBox x:Name="ProviderSearchBox" TextChanged="ProviderSearch_TextChanged" Background="Transparent" Foreground="{DynamicResource ThemeSoftBrush}"
+                       BorderThickness="0" Padding="30,0,8,0" FontSize="10.5" VerticalContentAlignment="Center" ToolTip="Filter providers"/>
+              <TextBlock Text="⌕" Foreground="{DynamicResource ThemeDimBrush}" FontSize="15" Margin="9,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+              <TextBlock Text="Cari pengaturan, fitur, atau provider…" Foreground="{DynamicResource ThemeDimBrush}" FontSize="10" Margin="30,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Text, ElementName=ProviderSearchBox}" Value="">
+                        <Setter Property="Visibility" Value="Visible"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Grid>
+          </Border>
+          <Border Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="9,6" Margin="0,0,7,6">
+            <TextBlock Text="USER SETTINGS" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="8.5" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+          </Border>
+          <Border Background="#0F2A22" BorderBrush="#1E5A45" BorderThickness="1" CornerRadius="5" Padding="9,6" Margin="0,0,7,6">
+            <TextBlock Text="LOCAL ENCRYPTION ON" Foreground="#34D399" FontSize="8.5" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+          </Border>
+        </WrapPanel>
+
+        <Border x:Name="SettingsNoResults" Background="{DynamicResource ThemePanelBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" CornerRadius="7" Padding="13" Margin="0,0,0,10" Visibility="Collapsed">
+          <TextBlock Text="Tidak ada pengaturan yang cocok dengan pencarian." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10.5"/>
+        </Border>
+
+        <Border x:Name="PreferencesCard" Style="{StaticResource SettingsCard}" Padding="15,13">
+          <StackPanel>
+            <TextBlock Text="General &amp; Appearance" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="13" FontWeight="Bold"/>
+            <TextBlock Text="Pilih tema untuk seluruh jendela, panel, terminal, dan editor. Perubahan dapat diterapkan dari toolbar editor atau disimpan di sini." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,3,0,12" TextWrapping="Wrap"/>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+              <StackPanel Margin="0,0,10,10">
+                <TextBlock Text="APP COLOR THEME" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" Margin="0,0,0,4"/>
+                <ComboBox x:Name="EditorThemeBox" Height="32"/>
+              </StackPanel>
+              <StackPanel Grid.Column="1" Margin="10,0,0,10">
+                <TextBlock Text="EDITOR FONT SIZE" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" Margin="0,0,0,4"/>
+                <ComboBox x:Name="EditorFontSizeBox" Height="32" SelectedIndex="2">
+                  <ComboBoxItem Content="11"/><ComboBoxItem Content="12"/><ComboBoxItem Content="13"/>
+                  <ComboBoxItem Content="14"/><ComboBoxItem Content="16"/><ComboBoxItem Content="18"/>
+                </ComboBox>
+              </StackPanel>
+              <CheckBox x:Name="WordWrapCheck" Grid.Row="1" Content="Word Wrap" Margin="0,2,0,9"/>
+              <CheckBox x:Name="MinimapCheck" Grid.Row="1" Grid.Column="1" Content="Show Minimap" Margin="10,2,0,9"/>
+              <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
+                <TextBlock Text="DEFAULT PROJECTS FOLDER" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" Margin="0,0,0,4"/>
+                <TextBox x:Name="DefaultProjectsPathBox" Style="{StaticResource SettingsTextBox}"/>
+              </StackPanel>
+            </Grid>
+            <Border Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="7" Padding="11,9" Margin="0,2,0,0">
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                  <TextBlock Text="CODE FORMATTING" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="8" FontWeight="Bold"/>
+                  <TextBlock Text="Shift+Alt+F memilih formatter otomatis: Prettier untuk JS/TS dan web, Ruff untuk Python, Roslyn untuk C#, serta formatter bawaan JSON/XML/XAML. Paket formatter disediakan; Prettier memakai runtime Node.js."
+                             Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                  <TextBlock Text="INDENT STYLE" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" Margin="0,0,0,4"/>
+                  <ComboBox x:Name="FormatterIndentBox" Height="30" SelectedIndex="0">
+                    <ComboBoxItem Content="2 spaces" Tag="2"/>
+                    <ComboBoxItem Content="4 spaces" Tag="4"/>
+                    <ComboBoxItem Content="Tabs" Tag="tab"/>
+                  </ComboBox>
+                </StackPanel>
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
+
+        <Border x:Name="ExtensionsCard" Style="{StaticResource SettingsCard}" Padding="15,13">
+          <StackPanel>
+            <DockPanel LastChildFill="True">
+              <Button DockPanel.Dock="Right" Content="Jelajahi Extensions" Style="{StaticResource SettingsActionButton}" Click="OpenExtensions_Click" Margin="8,0,0,0"/>
+              <TextBlock Text="Built-in Features" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+            </DockPanel>
+            <TextBlock Text="Pilih modul bawaan yang tampil di activity bar dan menu Cloud." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,3,0,10" TextWrapping="Wrap"/>
+            <CheckBox x:Name="SourceControlFeatureCheck" Content="Git &amp; Source Control" Margin="0,4"/>
+            <CheckBox x:Name="DeployFeatureCheck" Content="Cloud Deploy &amp; Upload" Margin="0,4"/>
+            <CheckBox x:Name="DomainsFeatureCheck" Content="Domains &amp; URLs" Margin="0,4"/>
+            <CheckBox x:Name="EnvironmentFeatureCheck" Content="Environment &amp; Secrets" Margin="0,4"/>
+            <CheckBox x:Name="LinkGaibFeatureCheck" Content="Link Gaib Tunnel" Margin="0,4"/>
+          </StackPanel>
+        </Border>
+
+        <Border x:Name="LocalServerCard" Style="{StaticResource SettingsCard}">
+          <Grid>
+            <Border Width="3" HorizontalAlignment="Left" Background="#8B5CF6" CornerRadius="8,0,0,8"/>
+            <StackPanel Margin="15,11,13,11">
+              <DockPanel LastChildFill="True">
+                <Border DockPanel.Dock="Right" Background="#241640" BorderBrush="#5B3FA6" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                  <TextBlock Text="TANPA XAMPP" Foreground="#C4B5FD" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                </Border>
+                <StackPanel>
+                  <TextBlock Text="PHP &amp; Laravel Local Server" Foreground="{DynamicResource ThemePrimaryBrush}" FontWeight="Bold" FontSize="11.5"/>
+                  <TextBlock Text="Apache + PHP dikelola Depup Code di %LOCALAPPDATA%. Loopback saja, tanpa service, installer, admin, atau perubahan PATH global."
+                             Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+              </DockPanel>
+
+              <Border Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="7" Padding="11,9" Margin="0,10,0,0">
+                <StackPanel>
+                  <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                      <Button x:Name="LocalRuntimeDownloadButton" Content="Unduh / Perbaiki" Style="{StaticResource SettingsActionButton}" Click="DownloadLocalRuntime_Click" Margin="6,0,0,0"/>
+                      <Button x:Name="LocalRuntimeRemoveButton" Content="Hapus" Style="{StaticResource SettingsActionButton}" Click="RemoveLocalRuntime_Click" Margin="6,0,0,0"/>
+                      <Button Content="Folder Runtime" Style="{StaticResource SettingsActionButton}" Click="OpenLocalRuntimeFolder_Click" Margin="6,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="RUNTIME STATUS" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                      <TextBlock x:Name="LocalRuntimeStatus" Text="Memeriksa runtime…" Foreground="{DynamicResource ThemeSecondaryBrush}" FontSize="10" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                  </DockPanel>
+                  <TextBlock x:Name="LocalServerActionStatus" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9" Margin="0,7,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="120"/>
+                  <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox x:Name="LocalServerAutoPreviewCheck" Content="Buka preview otomatis saat server PHP mulai" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                  <TextBlock Text="PORT AWAL" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" Margin="0,0,0,4"/>
+                  <TextBox x:Name="LocalPortStartBox" Style="{StaticResource SettingsTextBox}" ToolTip="Port loopback awal, default 8000"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                  <TextBlock Text="PORT AKHIR" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" Margin="0,0,0,4"/>
+                  <TextBox x:Name="LocalPortEndBox" Style="{StaticResource SettingsTextBox}" ToolTip="Port loopback akhir, default 8099"/>
+                </StackPanel>
+              </Grid>
+
+              <CheckBox x:Name="LocalServerFallbackCheck" Content="Izinkan PHP built-in server sebagai fallback bila Apache gagal (label akan ditampilkan)" Margin="0,10,0,0"/>
+
+              <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,10,0">
+                  <TextBlock Text="PATH PHP OPSIONAL (php.exe)" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <TextBox x:Name="PhpPathBox" Style="{StaticResource SettingsTextBox}" ToolTip="Kosongkan untuk memakai runtime yang diunduh Depup Code"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                  <TextBlock Text="PATH APACHE OPSIONAL (httpd.exe)" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <TextBox x:Name="ApachePathBox" Style="{StaticResource SettingsTextBox}" ToolTip="Kosongkan untuk memakai runtime yang diunduh Depup Code"/>
+                </StackPanel>
+              </Grid>
+
+              <TextBlock Text="Lisensi Apache 2.0 dan PHP 3.01 disimpan bersama runtime. Folder workspace tidak pernah dipakai untuk konfigurasi server."
+                         Foreground="{DynamicResource ThemeDimBrush}" FontSize="8.5" Margin="0,8,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border x:Name="VercelCard" Style="{StaticResource SettingsCard}">
+          <Grid>
+            <Border Width="3" HorizontalAlignment="Left" Background="#10B981" CornerRadius="8,0,0,8"/>
+            <StackPanel Margin="15,11,13,11">
+              <DockPanel>
+                <Border DockPanel.Dock="Right" Background="#0F2A22" BorderBrush="#1E5A45" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                  <TextBlock Text="VERCEL API" Foreground="#34D399" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                </Border>
+                <StackPanel>
+                  <TextBlock Text="▲  Vercel Cloud" Foreground="{DynamicResource ThemePrimaryBrush}" FontWeight="Bold" FontSize="11.5"/>
+                  <TextBlock Text="Personal access token untuk deployment project." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,2,0,0"/>
+                </StackPanel>
+              </DockPanel>
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                  <TextBlock Text="PERSONAL ACCESS TOKEN" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <PasswordBox x:Name="VercelTokenBox" Style="{StaticResource SettingsPasswordBox}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Test Koneksi" Tag="vercel" AutomationProperties.HelpText="RequiresCloud" Click="Test_Click" Style="{StaticResource PrimaryButton}" Height="29" FontSize="9.5" Margin="10,17,0,0"/>
+              </Grid>
+              <TextBlock x:Name="VercelStatus" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,6,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border x:Name="CloudflareCard" Style="{StaticResource SettingsCard}">
+          <Grid>
+            <Border Width="3" HorizontalAlignment="Left" Background="#F59E0B" CornerRadius="8,0,0,8"/>
+            <StackPanel Margin="15,11,13,11">
+              <DockPanel>
+                <Border DockPanel.Dock="Right" Background="#2A1D0B" BorderBrush="#704B14" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                  <TextBlock Text="PAGES API" Foreground="#FBBF24" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                </Border>
+                <StackPanel>
+                  <TextBlock Text="☁  Cloudflare Pages" Foreground="{DynamicResource ThemePrimaryBrush}" FontWeight="Bold" FontSize="11.5"/>
+                  <TextBlock Text="Account ID dan API token untuk membuat serta menyinkronkan Pages project." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,2,0,0"/>
+                </StackPanel>
+              </DockPanel>
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                  <TextBlock Text="ACCOUNT ID" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <TextBox x:Name="CloudflareAccountBox" Style="{StaticResource SettingsTextBox}" ToolTip="Cloudflare Account ID"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                  <TextBlock Text="API TOKEN (CLOUDFLARE PAGES)" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <PasswordBox x:Name="CloudflareTokenBox" Style="{StaticResource SettingsPasswordBox}"/>
+                </StackPanel>
+              </Grid>
+              <DockPanel Margin="0,8,0,0">
+                <Button DockPanel.Dock="Right" Content="Test Koneksi" Tag="cloudflare" AutomationProperties.HelpText="RequiresCloud" Click="Test_Click" Style="{StaticResource PrimaryButton}" Height="28" FontSize="9.5" Margin="8,0,0,0"/>
+                <TextBlock x:Name="CloudflareStatus" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" VerticalAlignment="Center" TextWrapping="Wrap"/>
+              </DockPanel>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border x:Name="RailwayCard" Style="{StaticResource SettingsCard}">
+          <Grid>
+            <Border Width="3" HorizontalAlignment="Left" Background="#A855F7" CornerRadius="8,0,0,8"/>
+            <StackPanel Margin="15,11,13,11">
+              <DockPanel>
+                <Border DockPanel.Dock="Right" Background="#21183C" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                  <TextBlock Text="RAILWAY API" Foreground="#C4B5FD" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                </Border>
+                <StackPanel>
+                  <TextBlock Text="Railway Infrastructure" Foreground="{DynamicResource ThemePrimaryBrush}" FontWeight="Bold" FontSize="11.5"/>
+                  <TextBlock Text="Personal API token untuk deployment dan operasi Railway." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,2,0,0"/>
+                </StackPanel>
+              </DockPanel>
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                  <TextBlock Text="PERSONAL API TOKEN" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <PasswordBox x:Name="RailwayTokenBox" Style="{StaticResource SettingsPasswordBox}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Test Koneksi" Tag="railway" AutomationProperties.HelpText="RequiresCloud" Click="Test_Click" Style="{StaticResource PrimaryButton}" Height="29" FontSize="9.5" Margin="10,17,0,0"/>
+              </Grid>
+              <TextBlock x:Name="RailwayStatus" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,6,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Depup Cloud account, deployment gateway, and cloud token sync. -->
+        <Border x:Name="DepupCloudCard" Style="{StaticResource SettingsCard}" BorderBrush="{DynamicResource ThemeBorderLightBrush}">
+          <Grid>
+            <Border Width="3" HorizontalAlignment="Left" Background="{DynamicResource ThemeAccentBrush}" CornerRadius="8,0,0,8"/>
+            <StackPanel Margin="15,12,13,12">
+              <DockPanel LastChildFill="True">
+                <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                  <Button Content="Buka Dashboard ↗" Tag="RequiresCloud" Style="{StaticResource SettingsActionButton}" Click="OpenDashboard_Click" Margin="0,0,6,0"/>
+                  <Button Content="depup.cloud ↗" Tag="RequiresCloud" Style="{StaticResource SettingsActionButton}" Click="OpenDepupWeb_Click"/>
+                </WrapPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Border Width="30" Height="30" Background="{DynamicResource ThemeActiveSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderLightBrush}" BorderThickness="1" CornerRadius="7" VerticalAlignment="Center">
+                    <TextBlock Text="D" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="Depup Cloud" Foreground="{DynamicResource ThemePrimaryBrush}" FontWeight="Bold" FontSize="12.5"/>
+                      <Border Background="#0F2A22" BorderBrush="#1E5A45" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="PRIMARY" Foreground="#34D399" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                      </Border>
+                    </StackPanel>
+                    <TextBlock Text="Deployment gateway, project sync, and provider credentials" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,2,0,0"/>
+                  </StackPanel>
+                </StackPanel>
+              </DockPanel>
+
+              <TextBlock Text="Masuk dengan akun Google untuk deploy lewat Depup dan menyinkronkan project, environment, serta token provider. Gateway ini juga digunakan Link Gaib dan Depup Edge."
+                         Foreground="{DynamicResource ThemeMutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,10,0,0"/>
+              <TextBlock x:Name="DepupCloudStatus" Text="Mengecek sesi Depup Cloud…" Foreground="#FBBF24" FontSize="10" TextWrapping="Wrap" Margin="0,7,0,0"/>
+              <WrapPanel Margin="0,10,0,0">
+                <Button x:Name="DepupLoginButton" Content="Masuk dengan Google" Tag="RequiresCloud" Style="{StaticResource PrimaryButton}" Click="DepupLogin_Click" Margin="0,0,7,7" Height="29" FontSize="10"/>
+                <Button Content="Test koneksi" Tag="depup" AutomationProperties.HelpText="RequiresCloud" Click="Test_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
+                <Button Content="Putuskan perangkat" Click="DepupDisconnect_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
+                <Button Content="Impor dari Cloud" Tag="RequiresCloud" Click="ImportCloudSettings_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
+                <Button Content="Sinkronkan token" Tag="RequiresCloud" Click="SyncCloudSettings_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
+              </WrapPanel>
+              <TextBlock Text="Memutuskan perangkat hanya menghapus sesi lokal; data akun di cloud tetap ada." Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" TextWrapping="Wrap"/>
+
+              <Expander Header="Pengaturan lanjutan · URL gateway dan token sesi" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="10" Margin="0,10,0,0">
+                <Grid Margin="0,8,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel>
+                    <TextBlock Text="Depup Cloud Base URL" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,0,0,4"/>
+                    <TextBox x:Name="DepupUrlBox" Text="https://depup.cloud" Style="{StaticResource SettingsTextBox}" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                    <TextBlock Text="Session cookie / token manual" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,0,0,4"/>
+                    <PasswordBox x:Name="DepupTokenBox" Style="{StaticResource SettingsPasswordBox}" ToolTip="Terisi otomatis setelah login Google"/>
+                  </StackPanel>
+                </Grid>
+              </Expander>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border x:Name="GitHubCard" Style="{StaticResource SettingsCard}">
+          <Grid>
+            <Border Width="3" HorizontalAlignment="Left" Background="{DynamicResource ThemeDimBrush}" CornerRadius="8,0,0,8"/>
+            <StackPanel Margin="15,11,13,11">
+              <DockPanel>
+                <Border DockPanel.Dock="Right" Background="{DynamicResource ThemeSurfaceBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                  <TextBlock Text="SOURCE CONTROL" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas"/>
+                </Border>
+                <StackPanel>
+                  <TextBlock Text="GitHub API" Foreground="{DynamicResource ThemePrimaryBrush}" FontWeight="Bold" FontSize="11.5"/>
+                  <TextBlock Text="Repo scope diperlukan untuk private repository, upload, dan Railway auto-fix." Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+              </DockPanel>
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                  <TextBlock Text="PERSONAL ACCESS TOKEN" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="8" FontWeight="Bold" FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,4"/>
+                  <PasswordBox x:Name="GitHubTokenBox" Style="{StaticResource SettingsPasswordBox}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Test Koneksi" Tag="github" AutomationProperties.HelpText="RequiresCloud" Click="Test_Click" Style="{StaticResource PrimaryButton}" Height="29" FontSize="9.5" Margin="10,17,0,0"/>
+              </Grid>
+              <TextBlock x:Name="GitHubStatus" Foreground="{DynamicResource ThemeMutedBrush}" FontSize="9.5" Margin="0,6,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border x:Name="SecurityInfoCard" Background="{DynamicResource ThemePanelBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,1,0,4">
+          <DockPanel>
+            <Border Width="28" Height="28" Background="{DynamicResource ThemeActiveSurfaceBrush}" CornerRadius="6" Margin="0,0,10,0">
+              <TextBlock Text="◆" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <StackPanel>
+              <TextBlock Text="DPAPI encrypted credential store" Foreground="{DynamicResource ThemeSoftBrush}" FontSize="10" FontWeight="SemiBold"/>
+              <TextBlock Text="Saved provider credentials are encrypted locally by Windows DPAPI. Use Save Configuration after changing a token."
+                         Foreground="{DynamicResource ThemeActivityIdleBrush}" FontSize="9" Margin="0,3,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Background="{DynamicResource ThemeStatusBrush}" BorderBrush="{DynamicResource ThemeSeparatorBrush}" BorderThickness="0,1,0,0" Padding="14,7">
+      <DockPanel LastChildFill="True">
+        <Button DockPanel.Dock="Right" Content="Simpan Konfigurasi &amp; Token" Style="{StaticResource PrimaryButton}" Click="Save_Click" Height="31" FontSize="10.5" Padding="12,4"/>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock x:Name="SaveStatus" Foreground="#34D399" FontSize="9.5" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="Settings tersimpan lokal; kredensial dienkripsi dengan Windows DPAPI." Foreground="{DynamicResource ThemeDimBrush}" FontSize="8.5" Margin="0,2,0,0"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>
