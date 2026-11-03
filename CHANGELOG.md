@@ -146,5 +146,17 @@ Rilis pertama Depup Code sebagai IDE desktop Windows x64.
 - Tidak semua ekstensi VS Code atau tipe aktivasi didukung.
 
 [Unreleased]: https://github.com/MeledakCik/DepupCode/compare/v2.5.1...HEAD
+## [2.5.4] - 2026-11-03
+
+### Diperbaiki
+
+- Saat provider membalas batas pemakaian (HTTP 429), request kini diulang otomatis setelah
+  jeda yang dibaca dari header `Retry-After` atau pesan error ("try again in 18.4s").
+
+### Diubah
+
+- Model bawaan Groq menjadi `openai/gpt-oss-20b`.
+
 [2.5.1]: https://github.com/MeledakCik/DepupCode/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/MeledakCik/DepupCode/releases/tag/v2.5.0
+
