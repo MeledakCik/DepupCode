@@ -46,7 +46,13 @@ public sealed class PhpRuntimeService
     public PhpRuntimeService(string? rootDirectory = null, string? phpVersion = null)
     {
         RootDirectory = string.IsNullOrWhiteSpace(rootDirectory)
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DepupCode", "runtimes")
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+#if DEBUG
+                "DepupCode-Development",
+#else
+                "DepupCode",
+#endif
+                "runtimes")
             : Path.GetFullPath(rootDirectory);
         SelectedPhpVersion = NormalizePhpVersion(phpVersion ?? DefaultPhpVersion);
     }

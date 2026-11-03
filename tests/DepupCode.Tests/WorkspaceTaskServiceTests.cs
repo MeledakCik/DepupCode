@@ -6,6 +6,18 @@ namespace DepupCode.Tests;
 public sealed class WorkspaceTaskServiceTests
 {
     [Fact]
+    public void Settings_profile_is_isolated_between_debug_and_release_builds()
+    {
+        var directory = new SettingsService().SettingsDirectory;
+
+#if DEBUG
+        Assert.EndsWith(Path.Combine("DepupCode-Development"), directory, StringComparison.OrdinalIgnoreCase);
+#else
+        Assert.EndsWith(Path.Combine("DepupCode"), directory, StringComparison.OrdinalIgnoreCase);
+#endif
+    }
+
+    [Fact]
     public void Starter_configuration_has_a_default_build_task()
     {
         var root = CreateWorkspace();

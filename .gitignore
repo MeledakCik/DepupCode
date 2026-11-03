@@ -6,8 +6,10 @@ obj/
 *.log
 *.zip
 *.user
+*_wpftmp.csproj
 node_modules/
 *.exe
+artifacts/
 DepupCode/bin/
 DepupCode/obj/
 tests/**/bin/

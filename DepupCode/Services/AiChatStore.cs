@@ -5,8 +5,7 @@ namespace DepupCode.Services;
 
 public sealed class AiChatStore
 {
-    private readonly string _path = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DepupCode", "ai-chats.json");
+    private readonly string _path = Path.Combine(new SettingsService().SettingsDirectory, "ai-chats.json");
 
     public List<AiChatSession> Load()
     {

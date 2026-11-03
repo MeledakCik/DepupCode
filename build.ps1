@@ -38,6 +38,7 @@ try {
 
     $requiredFiles = @(
         "DepupCode.exe",
+        "PRIVACY.md",
         "coreclr.dll",
         "hostfxr.dll",
         "hostpolicy.dll",
@@ -87,7 +88,8 @@ try {
         Get-ChildItem -LiteralPath $publishDirectory -Force | ForEach-Object {
             Copy-Item -LiteralPath $_.FullName -Destination $packageDirectory -Recurse -Force
         }
-        Copy-Item -LiteralPath (Join-Path $projectRoot "README.md"), (Join-Path $projectRoot "PRIVACY.md") `
+        Copy-Item -LiteralPath (Join-Path $projectRoot "README.md"), (Join-Path $projectRoot "PRIVACY.md"), `
+            (Join-Path $projectRoot "LICENSE"), (Join-Path $projectRoot "CHANGELOG.md") `
             -Destination $packageDirectory -Force
 
         Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -99,10 +101,18 @@ try {
         $archive = [System.IO.Compression.ZipFile]::OpenRead($temporaryArchivePath)
         try {
             $archiveEntries = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
-            $requiredArchiveEntries = @($requiredFiles | ForEach-Object { $_.Replace('\', '/') }) + @("README.md", "PRIVACY.md")
+            $requiredArchiveEntries = @($requiredFiles | ForEach-Object { $_.Replace('\', '/') }) + @("README.md", "PRIVACY.md", "LICENSE", "CHANGELOG.md")
             $missingArchiveEntries = @($requiredArchiveEntries | Where-Object { $archiveEntries -notcontains $_ })
             if ($missingArchiveEntries.Count -gt 0) {
                 throw "Release ZIP is missing required files: $($missingArchiveEntries -join ', ')."
+            }
+            $profileFiles = @("settings.json", "projects.json", "domains.json", "ai-chats.json")
+            $profileEntries = @($archiveEntries | Where-Object {
+                $entryName = [System.IO.Path]::GetFileName($_)
+                $profileFiles -contains $entryName -or $_.EndsWith(".dpapi", [System.StringComparison]::OrdinalIgnoreCase)
+            })
+            if ($profileEntries.Count -gt 0) {
+                throw "Release ZIP contains user profile data: $($profileEntries -join ', '). No release package was verified."
             }
             $executableEntry = $archive.GetEntry("DepupCode.exe")
             if ($null -eq $executableEntry -or $executableEntry.Length -le 0) {

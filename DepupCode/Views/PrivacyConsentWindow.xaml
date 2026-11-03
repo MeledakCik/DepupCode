@@ -1,0 +1,42 @@
+<Window x:Class="DepupCode.Views.PrivacyConsentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Privasi dan penggunaan data — Depup Code"
+        Width="720" Height="700" MinWidth="560" MinHeight="480"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+        Background="#0C0A17" Foreground="#F8FAFC" ShowInTaskbar="False">
+  <Grid Margin="24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <StackPanel Margin="0,0,0,16">
+      <TextBlock x:Name="WindowHeading" Text="Sebelum Anda mulai" FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="Tinjau kebijakan privasi Depup Code sebelum melanjutkan. Membaca kebijakan ini bukan persetujuan untuk mengirim data opsional; tindakan online tetap memerlukan pilihan Anda." Foreground="#C4B5FD" TextWrapping="Wrap" Margin="0,7,0,0"/>
+      <TextBlock x:Name="PolicyVersionText" Foreground="#6C6794" FontSize="11" Margin="0,6,0,0"/>
+    </StackPanel>
+    <Border Grid.Row="1" Background="#120F24" BorderBrush="#382F69" BorderThickness="1" CornerRadius="8" Padding="12">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <TextBox x:Name="PolicyTextBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"
+                 BorderThickness="0" Background="Transparent" Foreground="#E2E8F0"
+                 FontFamily="Segoe UI" FontSize="12" Padding="2"/>
+      </ScrollViewer>
+    </Border>
+    <StackPanel Grid.Row="2" Margin="0,16,0,0">
+      <CheckBox x:Name="AcceptPolicyCheckBox" Content="Saya telah membaca kebijakan privasi." Foreground="#E2E8F0"
+                IsChecked="False" Checked="AcceptPolicyCheckBox_Changed" Unchecked="AcceptPolicyCheckBox_Changed"
+                Margin="0,0,0,12"/>
+      <DockPanel LastChildFill="False">
+        <Button Content="Buka kebijakan online" Click="OpenPolicyOnline_Click" Padding="12,7" Margin="0,0,8,0"
+                Background="#1C1736" Foreground="#E2E8F0" BorderBrush="#382F69"/>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button x:Name="DeclineButton" Content="Tolak dan tutup" IsCancel="True" Click="Decline_Click"
+                  Padding="14,7" Margin="0,0,8,0" Background="#1C1736" Foreground="#E2E8F0" BorderBrush="#382F69"/>
+          <Button x:Name="ContinueButton" Content="Setuju dan lanjutkan" IsDefault="True" IsEnabled="False"
+                  Click="Continue_Click" Padding="14,7" Background="#6D28D9" Foreground="White" BorderBrush="#8B5CF6"/>
+        </StackPanel>
+      </DockPanel>
+    </StackPanel>
+  </Grid>
+</Window>

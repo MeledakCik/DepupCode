@@ -6,8 +6,17 @@ namespace DepupCode.Services;
 
 public sealed class SettingsService
 {
+    public const string PrivacyPolicyVersion = "2026-11-03";
+
+#if DEBUG
+    private readonly string _path = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DepupCode-Development", "settings.json");
+#else
     private readonly string _path = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DepupCode", "settings.json");
+#endif
+
+    public string SettingsDirectory => Path.GetDirectoryName(_path)!;
 
     public string SettingsPath => _path;
 

@@ -1,0 +1,31 @@
+DEPUP CODE - PRIVACY AND FIRST-RUN NOTICE
+
+Depup Code is a desktop IDE for Windows. This setup installs the application
+for the current Windows user. Administrator rights are not required.
+
+WHAT SETUP DOES
+- Copies the Depup Code application files to your user profile.
+- Creates Start Menu entries and, if selected, a Desktop shortcut.
+- Optionally adds "Open with Depup Code" to the folder context menu.
+- Registers the depup:// link that Depup Code uses to finish an optional
+  Depup Cloud sign-in started in your browser.
+- Adds an uninstaller under Windows Settings > Apps.
+
+WHAT SETUP DOES NOT DO
+- It does not create an account, sign you in, or upload project files.
+- It does not install browser extensions, AI providers, PHP, Apache, or
+  other optional runtimes. Those are downloaded only when you ask for them
+  inside the application.
+- It does not collect telemetry.
+
+PRIVACY CONSENT
+On first launch, Depup Code shows its privacy policy and asks you to confirm
+that you have read it before the editor opens. You can review the policy at
+any time from Settings, and you can revoke consent there. Consent is not an
+opt-in to send data: online features such as AI chat, Git, deploy, and cloud
+sync send data only when you explicitly run them.
+
+FULL POLICY
+https://github.com/MeledakCik/DepupCode/blob/main/PRIVACY.md
+
+Support: https://github.com/MeledakCik/DepupCode/issues

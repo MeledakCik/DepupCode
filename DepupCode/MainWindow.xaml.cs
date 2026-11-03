@@ -173,6 +173,8 @@ public partial class MainWindow : Window
     private bool _htmlPreviewInitializing;
     private bool _htmlPreviewDiagnosticsAttached;
     private Task? _htmlPreviewCoreInitialization;
+    private static readonly SemaphoreSlim WebViewEnvironmentLock = new(1, 1);
+    private static CoreWebView2Environment? _webViewEnvironment;
     private readonly List<string> _htmlPreviewDiagnostics = [];
     private readonly PhpRuntimeService _phpRuntime = new();
     private readonly PhpServerService _phpServer = new();
@@ -662,6 +664,12 @@ public partial class MainWindow : Window
 
         _foldingManager = FoldingManager.Install(CodeEditor.TextArea);
         ShowEditorWelcome();
+        if (WelcomeBackground.Children.OfType<StackPanel>().FirstOrDefault()?.Children
+                .OfType<StackPanel>().FirstOrDefault()?.Children
+                .OfType<TextBlock>().FirstOrDefault(text => Equals(text.Tag, "WelcomeWorkspaceHint")) is { } workspaceHint)
+            workspaceHint.Text = string.IsNullOrWhiteSpace(settings.LastFolder)
+                ? "Pilih workspace yang sudah ada untuk mulai; file project tidak dipindahkan."
+                : "Workspace terakhir tidak tersedia. Pilih folder lain; file project tidak dipindahkan.";
         UpdateCaretStatus();
 
         if (Directory.Exists(settings.LastFolder))
@@ -679,7 +687,7 @@ public partial class MainWindow : Window
         catch (Exception ex) { AppendOutput("Terminal tidak dapat dimulai: " + ex.Message); }
 
         RefreshProjectsSidebar();
-        NavigateTo("projects");
+        NavigateTo("editor");
 
         // Use cached data in explicit offline mode. Online mode refreshes the account and project catalog.
         var session = settings.IsOfflineMode
@@ -1482,7 +1490,9 @@ public partial class MainWindow : Window
         var dialog = new OpenFolderDialog
         {
             Title = "Buka folder project",
-            InitialDirectory = Directory.Exists(_folder) ? _folder : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+            InitialDirectory = Directory.Exists(_folder)
+                ? _folder
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
         };
         if (dialog.ShowDialog(this) == true) LoadFolder(dialog.FolderName, switchToEditor: true);
     }
@@ -1866,6 +1876,12 @@ public partial class MainWindow : Window
         string detectedFramework = "Next.js";
         try { detectedFramework = _deployService.AnalyzeDirectory(_folder).Framework; } catch { }
         _settings.AddRecentWorkspace(_folder, detectedFramework);
+        var settings = _settings.Load();
+        if (!settings.HasCompletedFirstRunSetup)
+        {
+            settings.HasCompletedFirstRunSetup = true;
+            _settings.Save(settings);
+        }
 
         _explorer.Watch(_folder);
         RefreshExplorer();
@@ -2345,6 +2361,34 @@ public partial class MainWindow : Window
         _htmlPreviewRefreshTimer.Start();
     }
 
+    /// <summary>
+    /// WebView2 default-nya menulis cache di samping executable. Di instalasi per-user
+    /// atau MSIX (Program Files/WindowsApps) folder itu tidak selalu bisa ditulis, jadi
+    /// cache dipusatkan di LocalAppData dan dipakai bersama oleh kedua WebView.
+    /// </summary>
+    private static async Task<CoreWebView2Environment> GetWebViewEnvironmentAsync()
+    {
+        if (_webViewEnvironment is not null) return _webViewEnvironment;
+        await WebViewEnvironmentLock.WaitAsync().ConfigureAwait(true);
+        try
+        {
+            if (_webViewEnvironment is null)
+            {
+                var dataFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "DepupCode", "WebView2");
+                Directory.CreateDirectory(dataFolder);
+                _webViewEnvironment = await CoreWebView2Environment.CreateAsync(
+                    browserExecutableFolder: null, userDataFolder: dataFolder).ConfigureAwait(true);
+            }
+            return _webViewEnvironment;
+        }
+        finally
+        {
+            WebViewEnvironmentLock.Release();
+        }
+    }
+
     private async Task EnsureHtmlPreviewCoreAsync()
     {
         if (_htmlPreviewCoreReady) return;
@@ -2359,7 +2403,7 @@ public partial class MainWindow : Window
 
     private async Task InitializeHtmlPreviewCoreAsync()
     {
-        await HtmlPreviewWebView.EnsureCoreWebView2Async();
+        await HtmlPreviewWebView.EnsureCoreWebView2Async(await GetWebViewEnvironmentAsync());
         _htmlPreviewCoreReady = true;
         var core = HtmlPreviewWebView.CoreWebView2;
         core.Settings.AreDefaultContextMenusEnabled = true;
@@ -5436,7 +5480,7 @@ public partial class MainWindow : Window
 
     private async Task InitializeDebugTerminalWebViewAsync()
     {
-        await DebugTerminalWebView.EnsureCoreWebView2Async();
+        await DebugTerminalWebView.EnsureCoreWebView2Async(await GetWebViewEnvironmentAsync());
         var core = DebugTerminalWebView.CoreWebView2;
         if (core is null) throw new InvalidOperationException("WebView2 tidak dapat memulai renderer terminal.");
 

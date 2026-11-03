@@ -209,7 +209,13 @@ public sealed class WindowsExtensionSandbox : IDisposable
             WindowsExtensionSandboxBuilderResult? result = null;
             try
             {
-                var storage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DepupCode", "extension-sandboxes", "DepupCode.Ext." + extensionKey);
+                var storage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+#if DEBUG
+                    "DepupCode-Development",
+#else
+                    "DepupCode",
+#endif
+                    "extension-sandboxes", "DepupCode.Ext." + extensionKey);
                 var temp = Path.Combine(storage, "tmp");
                 Directory.CreateDirectory(storage);
                 Directory.CreateDirectory(temp);
@@ -249,7 +255,13 @@ public sealed class WindowsExtensionSandbox : IDisposable
             WindowsExtensionSandboxBuilderResult? result = null;
             try
             {
-                var storage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DepupCode", "process-sandboxes", key);
+                var storage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+#if DEBUG
+                    "DepupCode-Development",
+#else
+                    "DepupCode",
+#endif
+                    "process-sandboxes", key);
                 var temp = Path.Combine(storage, "tmp");
                 Directory.CreateDirectory(storage);
                 Directory.CreateDirectory(temp);

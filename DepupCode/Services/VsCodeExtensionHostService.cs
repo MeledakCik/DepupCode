@@ -323,7 +323,13 @@ public sealed class VsCodeExtensionHostService : IAsyncDisposable
 
     private static async Task<string> EnsureHostScriptAsync(CancellationToken cancellationToken)
     {
-        var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DepupCode", "runtime");
+        var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+#if DEBUG
+            "DepupCode-Development",
+#else
+            "DepupCode",
+#endif
+            "runtime");
         Directory.CreateDirectory(directory);
         var path = Path.Combine(directory, "vscode-extension-host.cjs");
         await File.WriteAllTextAsync(path, HostScript, cancellationToken);

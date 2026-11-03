@@ -369,11 +369,11 @@
               <WrapPanel Margin="0,10,0,0">
                 <Button x:Name="DepupLoginButton" Content="Masuk dengan Google" Tag="RequiresCloud" Style="{StaticResource PrimaryButton}" Click="DepupLogin_Click" Margin="0,0,7,7" Height="29" FontSize="10"/>
                 <Button Content="Test koneksi" Tag="depup" AutomationProperties.HelpText="RequiresCloud" Click="Test_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
-                <Button Content="Putuskan perangkat" Click="DepupDisconnect_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
+                <Button Content="Keluar dari akun" Click="DepupDisconnect_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
                 <Button Content="Impor dari Cloud" Tag="RequiresCloud" Click="ImportCloudSettings_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
                 <Button Content="Sinkronkan token" Tag="RequiresCloud" Click="SyncCloudSettings_Click" Style="{StaticResource SettingsActionButton}" Margin="0,0,7,7"/>
               </WrapPanel>
-              <TextBlock Text="Memutuskan perangkat hanya menghapus sesi lokal; data akun di cloud tetap ada." Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" TextWrapping="Wrap"/>
+              <TextBlock Text="Keluar menghapus sesi Depup Cloud di aplikasi ini saja. Data cloud dan sesi akun Google di browser tidak dihapus." Foreground="{DynamicResource ThemeDimBrush}" FontSize="9" TextWrapping="Wrap"/>
 
               <Expander Header="Pengaturan lanjutan · URL gateway dan token sesi" Foreground="{DynamicResource ThemeAccentSoftBrush}" FontSize="10" Margin="0,10,0,0">
                 <Grid Margin="0,8,0,0">
@@ -430,6 +430,10 @@
               <TextBlock Text="DPAPI encrypted credential store" Foreground="{DynamicResource ThemeSoftBrush}" FontSize="10" FontWeight="SemiBold"/>
               <TextBlock Text="Saved provider credentials are encrypted locally by Windows DPAPI. Use Save Configuration after changing a token."
                          Foreground="{DynamicResource ThemeActivityIdleBrush}" FontSize="9" Margin="0,3,0,0" TextWrapping="Wrap"/>
+              <Button Content="Buka kebijakan privasi" Click="OpenPrivacyPolicy_Click" HorizontalAlignment="Left"
+                      Style="{StaticResource SettingsActionButton}" Margin="0,8,0,0"/>
+              <Button Content="Hapus persetujuan privasi" Click="RevokePrivacyConsent_Click" HorizontalAlignment="Left"
+                      Style="{StaticResource SettingsActionButton}" Margin="0,5,0,0"/>
             </StackPanel>
           </DockPanel>
         </Border>

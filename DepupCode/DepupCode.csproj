@@ -8,10 +8,10 @@
     <ApplicationIcon>Assets\depup.ico</ApplicationIcon>
     <AssemblyName>DepupCode</AssemblyName>
     <RootNamespace>DepupCode</RootNamespace>
-    <Version>2.5.0</Version>
+    <Version>2.5.1</Version>
     <Company>Depup</Company>
     <Product>Depup Code</Product>
-    <Description>Stitch Kawaii Cloud IDE and Offline-First Deployment Desktop for Depup Cloud.</Description>
+    <Description>Windows development environment with code editing, local PHP tools, AI assistance, and optional cloud integrations.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DiffPlex" Version="1.7.2" />
@@ -36,6 +36,11 @@
     <Resource Include="Assets\stitch-security.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\PRIVACY.md">
+      <Link>PRIVACY.md</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="Assets\Formatters\Prettier\node_modules\prettier\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

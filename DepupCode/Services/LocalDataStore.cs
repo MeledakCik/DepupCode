@@ -5,8 +5,7 @@ namespace DepupCode.Services;
 
 public sealed class LocalDataStore
 {
-    private readonly string _root = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DepupCode");
+    private readonly string _root = new SettingsService().SettingsDirectory;
     private string ProjectsPath => Path.Combine(_root, "projects.json");
     private string DomainsPath => Path.Combine(_root, "domains.json");
 

@@ -39,6 +39,9 @@ public sealed class AppSettings
     public double UiZoomScale { get; set; } = 1.0;
     public double SidebarWidth { get; set; } = 268;
     public string AppTheme { get; set; } = "";
+    public bool HasAcceptedPrivacyPolicy { get; set; }
+    public string AcceptedPrivacyPolicyVersion { get; set; } = "";
+    public bool HasCompletedFirstRunSetup { get; set; }
     // Kept so older settings.json files and prior app builds remain compatible.
     public string EditorColorTheme { get; set; } = "Depup Dark";
     public bool EnableSourceControl { get; set; } = true;

@@ -170,7 +170,13 @@ public sealed class HtmlPreviewAgentTools(
         using var image = new MemoryStream();
         await webView.CoreWebView2.CapturePreviewAsync(Microsoft.Web.WebView2.Core.CoreWebView2CapturePreviewImageFormat.Jpeg, image);
         cancellationToken.ThrowIfCancellationRequested();
-        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DepupCode", "artifacts");
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+#if DEBUG
+            "DepupCode-Development",
+#else
+            "DepupCode",
+#endif
+            "artifacts");
         Directory.CreateDirectory(folder);
         var sessionPrefix = new string(session.Id.Where(char.IsLetterOrDigit).Take(8).ToArray());
         if (sessionPrefix.Length == 0) sessionPrefix = "session";

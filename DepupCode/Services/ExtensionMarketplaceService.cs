@@ -50,11 +50,9 @@ public sealed class ExtensionMarketplaceService
 {
     private const string Registry = "https://open-vsx.org";
     private static readonly HttpClient Http = CreateClient();
-    private readonly string _extensionsRoot = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DepupCode", "extensions");
+    private readonly string _extensionsRoot = Path.Combine(new SettingsService().SettingsDirectory, "extensions");
 
-    public static string ExtensionsRoot => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DepupCode", "extensions");
+    public static string ExtensionsRoot => Path.Combine(new SettingsService().SettingsDirectory, "extensions");
 
     private static HttpClient CreateClient()
     {

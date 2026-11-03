@@ -84,6 +84,26 @@ public partial class SettingsView : UserControl
 
     private void OpenExtensions_Click(object sender, RoutedEventArgs e) => _openExtensions?.Invoke();
 
+    private void OpenPrivacyPolicy_Click(object sender, RoutedEventArgs e)
+    {
+        var consent = new PrivacyConsentWindow(requireAcceptance: false) { Owner = Window.GetWindow(this) };
+        consent.ShowDialog();
+    }
+
+    private void RevokePrivacyConsent_Click(object sender, RoutedEventArgs e)
+    {
+        var answer = MessageBox.Show(Window.GetWindow(this),
+            "Persetujuan privasi akan dihapus. Aplikasi akan meminta Anda meninjau kebijakan lagi saat dibuka berikutnya. Pengaturan dan proyek tidak akan dihapus.",
+            "Hapus persetujuan privasi", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (answer != MessageBoxResult.Yes) return;
+
+        var settings = _settings.Load();
+        settings.HasAcceptedPrivacyPolicy = false;
+        settings.AcceptedPrivacyPolicyVersion = "";
+        _settings.Save(settings);
+        SaveStatus.Text = "Persetujuan privasi dihapus. Kebijakan akan ditampilkan lagi pada pembukaan berikutnya.";
+    }
+
     private void ApplySettingsFilter()
     {
         var query = ProviderSearchBox.Text.Trim();
@@ -297,7 +317,7 @@ public partial class SettingsView : UserControl
         _cloud.DisconnectThisDevice();
         _depupTokenShown = "";
         DepupTokenBox.Password = "";
-        SetDepupStatus("Sesi Depup Cloud di perangkat ini sudah dihapus. Data akun tetap tersimpan.", "#FBBF24");
+        SetDepupStatus("Anda sudah keluar dari Depup Cloud di aplikasi ini. Data cloud dan akun Google di browser tetap tersimpan.", "#FBBF24");
     }
 
     private async void SyncCloudSettings_Click(object sender, RoutedEventArgs e) => await SyncCloudSettingsAsync();
