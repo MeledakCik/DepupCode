@@ -577,7 +577,7 @@ public partial class ChatView : UserControl
                 {
                     case "Gemini":
                         endpointBox.Text = "https://generativelanguage.googleapis.com/v1beta/openai";
-                        modelBox.Text = "gemini-3.8-flash";
+                        modelBox.Text = "gemini-2.5-flash";
                         keyLabel.Text = "GEMINI API KEY";
                         break;
                     case "Copilot":

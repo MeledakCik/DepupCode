@@ -83,14 +83,8 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
         for (var round = 0; round <= MaxToolRounds; round++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var requestBody = new JObject
-            {
-                ["model"] = model,
-                ["messages"] = conversation
-            };
-            if (string.Equals(configuration.AiProvider, "Gemini", StringComparison.OrdinalIgnoreCase))
-                requestBody["reasoning_effort"] = "low";
-            requestBody["tools"] = CreateTools(allowChanges, selectedMcpTools, activeExternalTools);
+            var requestBody = CreateChatCompletionRequest(model, conversation,
+                CreateTools(allowChanges, selectedMcpTools, activeExternalTools));
 
             using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
             if (!string.IsNullOrWhiteSpace(key)) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
@@ -275,6 +269,13 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
             ? value
             : value + "/chat/completions";
     }
+
+    internal static JObject CreateChatCompletionRequest(string model, JArray conversation, JArray tools) => new()
+    {
+        ["model"] = model,
+        ["messages"] = conversation,
+        ["tools"] = tools
+    };
 
     private async Task<string> SendWithCopilotAsync(AiChatSession chat, string mode, bool allowChanges, bool securityAudit,
         Func<AiToolRequest, Task<bool>> approveAction, Action<string>? toolStarted,

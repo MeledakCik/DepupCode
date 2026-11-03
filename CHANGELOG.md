@@ -10,6 +10,27 @@ Versi rilis diambil dari properti `<Version>` pada `DepupCode/DepupCode.csproj`.
 
 Belum ada perubahan yang direncanakan untuk rilis berikutnya.
 
+## [2.5.2] - 2026-11-04
+
+Rilis perbaikan installer dan AI Agent untuk penggunaan desktop setelah setup.
+
+### Diubah
+
+- Installer Windows kini menggunakan `Program Files\Depup Code` sebagai lokasi default,
+  meminta hak Administrator saat pemasangan, lalu menjalankan aplikasi sebagai akun
+  pengguna asli agar pengaturan dan kredensial DPAPI tetap dapat dipakai.
+- Tombol pengaturan dan tutup pada panel AI Agent tidak lagi terpotong pada layout
+  sidebar sempit.
+- Preset Gemini diperbarui ke `gemini-2.5-flash` dan request API kompatibel tidak lagi
+  mengirim parameter khusus OpenAI yang dapat ditolak Gemini.
+- Build release tetap menghasilkan checksum SHA-256 dan mendukung Authenticode signing
+  untuk meningkatkan kepercayaan distribusi.
+
+### Diperbaiki
+
+- Menambahkan tes regresi untuk bentuk request chat-completion Gemini.
+- Memastikan build dan seluruh tes otomatis tetap lulus setelah perubahan packaging dan UI.
+
 ## [2.5.1] - 2026-11-03
 
 Rilis ini berfokus pada pengalaman pemasangan: satu file setup, onboarding

@@ -29,10 +29,10 @@ VersionInfoDescription=Depup Code Setup
 VersionInfoProductName=Depup Code
 VersionInfoProductVersion={#AppVersion}
 VersionInfoVersion={#VersionInfoVersion}
-DefaultDirName={localappdata}\Programs\Depup Code
+DefaultDirName={autopf}\Depup Code
 DefaultGroupName=Depup Code
 DisableProgramGroupPage=yes
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.17763
@@ -97,7 +97,7 @@ Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\DepupCode"; Val
 Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\DepupCode\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DepupCode.exe"" ""%V"""; Tasks: contextmenu; Flags: uninsdeletekey
 
 [Run]
-Filename: "{app}\DepupCode.exe"; Description: "{cm:LaunchProgram}"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\DepupCode.exe"; Description: "{cm:LaunchProgram}"; Flags: postinstall nowait skipifsilent runasoriginaluser
 
 [Code]
 function WebView2RuntimePresent(): Boolean;

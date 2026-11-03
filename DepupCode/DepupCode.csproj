@@ -8,7 +8,7 @@
     <ApplicationIcon>Assets\depup.ico</ApplicationIcon>
     <AssemblyName>DepupCode</AssemblyName>
     <RootNamespace>DepupCode</RootNamespace>
-    <Version>2.5.1</Version>
+    <Version>2.5.2</Version>
     <Company>Depup</Company>
     <Product>Depup Code</Product>
     <Description>Windows development environment with code editing, local PHP tools, AI assistance, and optional cloud integrations.</Description>

@@ -134,5 +134,5 @@ Write-Host "Installer: $installerPath ($([Math]::Round($installer.Length / 1MB, 
 Write-Host "SHA-256:  $hash"
 Write-Host "Checksum: $hashPath"
 if (-not $shouldSign) {
-	Write-Warning "The installer is not Authenticode-signed. Pass -CertificatePath to sign the app and setup executable before public distribution or Microsoft Store submission."
+	Write-Warning "The application and installer are unsigned. Pass -CertificatePath with a trusted code-signing certificate to sign both before public distribution. Signing and a SHA-256 checksum improve publisher trust and integrity but cannot guarantee that SmartScreen or antivirus will never warn; submit confirmed false positives to the relevant vendor."
 }

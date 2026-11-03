@@ -96,7 +96,7 @@ Gunakan script berikut dari root repository:
 Script hanya menerima target publik `win-x64`. Script melakukan restore runtime pack, build Release, publish self-contained, memeriksa file aplikasi/runtime wajib, lalu membuat dan memvalidasi arsip rilis dari hasil publish (bukan dari source atau folder Debug).
 
 - Hasil publish: `DepupCode\bin\Release\net8.0-windows\win-x64\publish\`
-- Paket rilis: `artifacts\release\DepupCode-v2.5.0-win-x64.zip`
+- Paket rilis: `artifacts\release\DepupCode-v2.5.2-win-x64.zip`
 - ZIP berisi seluruh output publish, `README.md`, dan kebijakan privasi desktop `PRIVACY.md`.
 
 Untuk membuat setup satu-file, instal Inno Setup 6 (`winget install JRSoftware.InnoSetup`) lalu jalankan:
@@ -105,7 +105,7 @@ Untuk membuat setup satu-file, instal Inno Setup 6 (`winget install JRSoftware.I
 .\build-installer.ps1
 ```
 
-Script menghasilkan `artifacts\release\DepupCode-Setup-v<versi>-win-x64.exe` beserta file `.sha256` dari hasil publish Release. Setup menyediakan wizard berbahasa Inggris/Indonesia, halaman ringkasan privasi, pendaftaran `depup://`, menu **Open with Depup Code** untuk folder, shortcut Start Menu/Desktop, uninstall, dan pemasangan per-user tanpa hak Administrator. Untuk rilis publik, tanda tangani payload dan installer sekaligus:
+Script menghasilkan `artifacts\release\DepupCode-Setup-v<versi>-win-x64.exe` beserta file `.sha256` dari hasil publish Release. Setup menyediakan wizard berbahasa Inggris/Indonesia, halaman ringkasan privasi, pendaftaran `depup://`, menu **Open with Depup Code** untuk folder, shortcut Start Menu/Desktop, uninstall, dan pemasangan default ke `Program Files\Depup Code` dengan hak Administrator. Untuk rilis publik, tanda tangani payload dan installer sekaligus:
 
 ```powershell
 .\build-installer.ps1 -CertificatePath .\cert\depup-codesign.pfx -CertificatePassword "<password>"
