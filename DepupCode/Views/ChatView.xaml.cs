@@ -217,6 +217,19 @@ public partial class ChatView : UserControl
         foreach (var turn in _activeSession.Turns.Where(turn => turn.Role is "user" or "assistant"))
         {
             var isUser = turn.Role == "user";
+            // Model seperti gpt-oss memanggil tool tanpa teks. Jangan gambar gelembung kosong; tampilkan satu baris aktivitas.
+            if (!isUser && turn.ToolCalls is { Count: > 0 } && string.IsNullOrWhiteSpace(turn.Content))
+            {
+                var toolNames = turn.ToolCalls.OfType<Newtonsoft.Json.Linq.JObject>()
+                    .Select(call => call["function"]?["name"]?.ToString())
+                    .Where(name => !string.IsNullOrWhiteSpace(name)).Distinct();
+                MessagesPanel.Children.Add(new TextBlock
+                {
+                    Text = "⚙ " + string.Join(", ", toolNames), FontSize = 9.5, TextWrapping = TextWrapping.Wrap,
+                    Foreground = GetBrush("ThemeDimBrush"), Margin = new Thickness(4, 2, 0, 4)
+                });
+                continue;
+            }
             var bubble = new Border
             {
                 MaxWidth = 520,
@@ -234,7 +247,9 @@ public partial class ChatView : UserControl
             });
             body.Children.Add(new TextBlock
             {
-                Text = turn.Content, TextWrapping = TextWrapping.Wrap, FontSize = 11.5,
+                Text = !isUser && string.IsNullOrWhiteSpace(turn.Content)
+                    ? "(Model membalas kosong. Coba kirim ulang atau pilih model lain.)" : turn.Content,
+                TextWrapping = TextWrapping.Wrap, FontSize = 11.5,
                 Foreground = GetBrush("ThemePrimaryBrush")
             });
             bubble.Child = body;
@@ -372,6 +387,8 @@ public partial class ChatView : UserControl
         ModelText.Text = "Menghubungi AI…";
         PromptBox.IsEnabled = false;
         ModeCombo.IsEnabled = false;
+        string? statusAfterRender = null;
+        var statusIsError = false;
         try
         {
             var agent = new AiAgentService(_settings, _workspaceRoot, ExternalTools);
@@ -383,11 +400,12 @@ public partial class ChatView : UserControl
         }
         catch (OperationCanceledException)
         {
-            ShowStatusMessage("Respons dihentikan.");
+            statusAfterRender = "Respons dihentikan.";
         }
         catch (Exception ex)
         {
-            ShowStatusMessage(ex.Message, isError: true);
+            statusAfterRender = ex.Message;
+            statusIsError = true;
         }
         finally
         {
@@ -395,6 +413,8 @@ public partial class ChatView : UserControl
             if (_activeSession is not null) _activeSession.UpdatedUtc = DateTime.UtcNow;
             PersistSessions();
             RenderMessages();
+            // RenderMessages() mengosongkan panel, jadi pesan error harus ditampilkan sesudahnya agar tidak hilang.
+            if (statusAfterRender is not null) ShowStatusMessage(statusAfterRender, statusIsError);
             _sending.Dispose();
             _sending = null;
             SendButton.Content = "↑";

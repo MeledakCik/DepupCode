@@ -17,7 +17,7 @@ namespace DepupCode.Services;
 public sealed class AiAgentService(SettingsService settings, string? workspaceRoot,
     IReadOnlyList<AiExternalTool>? externalTools = null)
 {
-    private const int MaxToolRounds = 5;
+    private const int MaxToolRounds = 8;
     private const int MaxFileBytes = 256 * 1024;
     private const int MaxTerminalCommandCharacters = 12_000;
     private const int MaxTerminalOutputCharactersPerStream = 8_000;
@@ -82,9 +82,21 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
 
         // Banyak model gratis/lokal tidak mendukung tool-calling. Untuk Ask/Plan kita jatuh kembali ke chat tanpa tools.
         var toolsUnsupported = false;
+        var rateLimitRetries = 0;
         for (var round = 0; round <= MaxToolRounds; round++)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (round == MaxToolRounds && !toolsUnsupported)
+            {
+                // Putaran terakhir: paksa jawaban tanpa tools supaya pengguna selalu mendapat ringkasan, bukan error.
+                toolsUnsupported = true;
+                conversation.Add(new JObject
+                {
+                    ["role"] = "user",
+                    ["content"] = "Batas putaran tindakan tercapai. Jangan memanggil tool lagi. Jawab sekarang dengan ringkasan lengkap " +
+                                  "berdasarkan data yang sudah dikumpulkan, dan sebutkan bagian yang belum sempat diperiksa."
+                });
+            }
             var requestBody = CreateChatCompletionRequest(model, conversation,
                 toolsUnsupported ? new JArray() : CreateTools(allowChanges, selectedMcpTools, activeExternalTools));
 
@@ -98,6 +110,17 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
                 string detail;
                 try { detail = JObject.Parse(responseText)["error"]?["message"]?.ToString() ?? response.ReasonPhrase ?? "Unknown error"; }
                 catch { detail = response.ReasonPhrase ?? "Unknown error"; }
+                // Tier gratis (mis. Groq) punya batas token per menit. Tunggu sesuai petunjuk provider lalu ulangi.
+                if ((int)response.StatusCode == 429 && rateLimitRetries < 6 &&
+                    AiProviderCatalog.ParseRetryDelay(detail, response.Headers.RetryAfter?.Delta) is { } retryDelay &&
+                    retryDelay <= TimeSpan.FromSeconds(60))
+                {
+                    rateLimitRetries++;
+                    toolStarted?.Invoke($"Batas pemakaian provider tercapai; menunggu {Math.Ceiling(retryDelay.TotalSeconds)} dtk lalu mencoba lagi ({rateLimitRetries}/6)…");
+                    await Task.Delay(retryDelay, cancellationToken);
+                    round--;
+                    continue;
+                }
                 if (!toolsUnsupported && AiProviderCatalog.LooksLikeToolsUnsupported((int)response.StatusCode, detail))
                 {
                     if (allowChanges)
@@ -125,7 +148,7 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
             }
 
             if (round == MaxToolRounds)
-                throw new InvalidOperationException("Agent mencapai batas 5 putaran tindakan. Kirim pesan lagi untuk melanjutkan.");
+                throw new InvalidOperationException($"Agent mencapai batas {MaxToolRounds} putaran tindakan. Kirim pesan lagi untuk melanjutkan.");
 
             conversation.Add(new JObject
             {
@@ -308,9 +331,13 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
         if (workspaceMcp.Count > 0)
             toolStarted?.Invoke("Koneksi MCP dinonaktifkan untuk provider Copilot sampai peluncuran server dapat memakai environment terisolasi. Pilih provider API kompatibel untuk MCP.");
         var mcpServers = new Dictionary<string, McpServerConfig>();
+        // Mode Empty mewajibkan lokasi penyimpanan sesi eksplisit; tanpa ini CopilotClient melempar ArgumentException.
+        var copilotBaseDirectory = Path.Combine(settings.SettingsDirectory, "copilot");
+        Directory.CreateDirectory(copilotBaseDirectory);
         await using var client = new CopilotClient(new CopilotClientOptions
         {
             Mode = CopilotClientMode.Empty,
+            BaseDirectory = copilotBaseDirectory,
             WorkingDirectory = Directory.Exists(_root) ? _root : AppContext.BaseDirectory,
             UseLoggedInUser = true,
             Environment = new Dictionary<string, string> { ["COPILOT_TELEMETRY_DISABLED"] = "true" }

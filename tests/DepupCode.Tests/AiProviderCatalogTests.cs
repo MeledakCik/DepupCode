@@ -55,4 +55,18 @@ public sealed class AiProviderCatalogTests
         Assert.All(AiProviderCatalog.Presets.Where(p => AiProviderCatalog.IsLocalEndpoint(p.BaseUrl)), p => Assert.False(p.RequiresKey));
         Assert.Equal(AiProviderCatalog.Presets.Count, AiProviderCatalog.Presets.Select(p => p.Id).Distinct().Count());
     }
+
+    [Theory]
+    [InlineData("Rate limit reached. Please try again in 18.4275s. Need more tokens?", 18.9275)]
+    [InlineData("Please try again in 250ms", 0.75)]
+    [InlineData("Please try again in 1m2.5s.", 63.0)]
+    public void Retry_delay_is_read_from_rate_limit_message(string detail, double expectedSeconds) =>
+        Assert.Equal(expectedSeconds, AiProviderCatalog.ParseRetryDelay(detail)!.Value.TotalSeconds, 3);
+
+    [Fact]
+    public void Retry_delay_prefers_header_and_is_null_when_unknown()
+    {
+        Assert.Equal(5.5, AiProviderCatalog.ParseRetryDelay("whatever", TimeSpan.FromSeconds(5))!.Value.TotalSeconds, 3);
+        Assert.Null(AiProviderCatalog.ParseRetryDelay("quota exceeded"));
+    }
 }

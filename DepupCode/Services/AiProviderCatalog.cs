@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using DepupCode.Models;
 
 namespace DepupCode.Services;
@@ -29,7 +30,7 @@ public static class AiProviderCatalog
             "Model 'openrouter/free' atau berakhiran ':free' tidak dikenai biaya, tetapi ada batas pemakaian dan dukungan tool bervariasi. " +
             "Prompt pada model gratis dapat dicatat provider; jangan kirim kode rahasia. Buat API key gratis di akun OpenRouter.",
             "https://openrouter.ai/keys"),
-        new("groq", "Groq (tier gratis)", "https://api.groq.com/openai/v1", "llama-3.3-70b-versatile", true,
+        new("groq", "Groq (tier gratis)", "https://api.groq.com/openai/v1", "openai/gpt-oss-20b", true,
             "Groq menyediakan tier gratis dengan batas rate. Daftar model aktif berubah; tekan 'Muat daftar model' untuk melihat model yang tersedia di akun Anda.",
             "https://console.groq.com/keys"),
         new("github", "GitHub Models (token GitHub)", "https://models.github.ai/inference", "openai/gpt-4.1-mini", true,
@@ -158,6 +159,21 @@ public static class AiProviderCatalog
         if (statusCode is not (400 or 404 or 422)) return false;
         var text = detail.ToLowerInvariant();
         return text.Contains("tool") || text.Contains("function calling") || text.Contains("function_call");
+    }
+
+    /// <summary>
+    /// Lama menunggu sebelum mengulang request yang kena batas pemakaian (HTTP 429). Memakai header Retry-After
+    /// bila ada, atau teks seperti "Please try again in 18.4s" / "1m2.5s" / "250ms". Null bila tidak diketahui.
+    /// </summary>
+    public static TimeSpan? ParseRetryDelay(string detail, TimeSpan? retryAfterHeader = null)
+    {
+        if (retryAfterHeader is { } header && header > TimeSpan.Zero) return header + TimeSpan.FromMilliseconds(500);
+        var match = Regex.Match(detail ?? "", @"try again in\s+(?:(\d+)m)?\s*(\d+(?:\.\d+)?)(ms|s)\b", RegexOptions.IgnoreCase);
+        if (!match.Success) return null;
+        var minutes = match.Groups[1].Success ? double.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) : 0;
+        var number = double.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+        var seconds = minutes * 60 + (match.Groups[3].Value.Equals("ms", StringComparison.OrdinalIgnoreCase) ? number / 1000 : number);
+        return TimeSpan.FromTicks((long)Math.Round((seconds + 0.5) * TimeSpan.TicksPerSecond));
     }
 
     public static async Task<List<string>> FetchModelIdsAsync(string? baseUrl, string? apiKey, CancellationToken cancellationToken = default)
