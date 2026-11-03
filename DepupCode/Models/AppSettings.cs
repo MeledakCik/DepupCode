@@ -8,6 +8,14 @@ public sealed class RecentWorkspaceItem
     public DateTime LastOpenedUtc { get; set; } = DateTime.UtcNow;
 }
 
+public sealed class AiCustomProvider
+{
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string BaseUrl { get; set; } = "";
+    public string Model { get; set; } = "";
+}
+
 public sealed class AppSettings
 {
     public string DepupCloudUrl { get; set; } = "https://depup.cloud";
@@ -23,6 +31,11 @@ public sealed class AppSettings
     public string AiApiKey { get; set; } = "";
     public string AiGeminiApiKey { get; set; } = "";
     public string AiProvider { get; set; } = "OpenAI";
+    // ID preset (mis. "groq", "ollama") atau provider manual ("custom-..."); kosong = pengaturan lama, dicocokkan lewat URL.
+    public string AiPresetId { get; set; } = "";
+    // API key per provider OpenAI-compatible (terenkripsi DPAPI), supaya berpindah provider tidak menimpa key lain.
+    public Dictionary<string, string> AiProviderKeys { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public List<AiCustomProvider> AiCustomProviders { get; set; } = [];
     public string AiApiBaseUrl { get; set; } = "https://api.openai.com/v1";
     public string AiModel { get; set; } = "gpt-4.1-mini";
     public string AiLanguage { get; set; } = "Indonesian";

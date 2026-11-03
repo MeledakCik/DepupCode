@@ -62,7 +62,7 @@ Pilih **Settings → Depup Cloud → Masuk dengan Google** untuk memulai login m
 
 ## AI chat dan agent
 
-Mode **Ask** digunakan untuk tanya-jawab, **Plan** untuk analisis/perencanaan, dan **Agent** untuk bantuan berbasis tool pada workspace. Tindakan yang dapat mengubah file atau menjalankan tool memerlukan persetujuan sesuai alurnya. Provider dapat dikonfigurasi untuk OpenAI-compatible API, Gemini, atau GitHub Copilot; layanan online memerlukan koneksi dan autentikasi/provider yang sesuai. Hasil AI tetap perlu ditinjau sebelum digunakan.
+Mode **Ask** digunakan untuk tanya-jawab, **Plan** untuk analisis/perencanaan, dan **Agent** untuk bantuan berbasis tool pada workspace. Tindakan yang dapat mengubah file atau menjalankan tool memerlukan persetujuan sesuai alurnya. Provider bawaan mencakup beberapa pilihan **gratis atau lokal** (OpenRouter `openrouter/free`, Groq, GitHub Models, Gemini, Ollama, LM Studio) serta OpenAI dan Mistral; provider OpenAI-compatible lain dapat **ditambahkan manual** (nama, URL API, model) dan API key disimpan terpisah per provider. Tombol **Muat daftar model** dan **Tes koneksi** ada di pengaturan AI. Lihat [docs/AI-PROVIDERS.md](docs/AI-PROVIDERS.md). Layanan online memerlukan koneksi dan autentikasi/provider yang sesuai; kuota gratis ditentukan provider. Hasil AI tetap perlu ditinjau sebelum digunakan.
 
 ## Persyaratan pengembangan
 
@@ -96,7 +96,7 @@ Gunakan script berikut dari root repository:
 Script hanya menerima target publik `win-x64`. Script melakukan restore runtime pack, build Release, publish self-contained, memeriksa file aplikasi/runtime wajib, lalu membuat dan memvalidasi arsip rilis dari hasil publish (bukan dari source atau folder Debug).
 
 - Hasil publish: `DepupCode\bin\Release\net8.0-windows\win-x64\publish\`
-- Paket rilis: `artifacts\release\DepupCode-v2.5.2-win-x64.zip`
+- Paket rilis: `artifacts\release\DepupCode-v2.5.3-win-x64.zip`
 - ZIP berisi seluruh output publish, `README.md`, dan kebijakan privasi desktop `PRIVACY.md`.
 
 Untuk membuat setup satu-file, instal Inno Setup 6 (`winget install JRSoftware.InnoSetup`) lalu jalankan:

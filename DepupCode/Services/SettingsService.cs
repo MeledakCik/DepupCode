@@ -118,8 +118,23 @@ public sealed class SettingsService
             "railway" => s.RailwayToken,
             "gemini" or "google" => s.AiGeminiApiKey,
             "ai" or "openai" => s.AiApiKey,
+            var name when name.StartsWith("ai:", StringComparison.Ordinal) =>
+                s.AiProviderKeys is not null && s.AiProviderKeys.TryGetValue(name[3..], out var stored) ? stored : "",
             _ => ""
         });
+    }
+
+    /// <summary>
+    /// API key untuk provider AI yang sedang aktif. Key lama yang tersimpan di slot tunggal "ai" hanya dipakai
+    /// untuk pengaturan lama (tanpa AiPresetId) agar key satu provider tidak pernah terkirim ke provider lain.
+    /// </summary>
+    public string GetActiveAiKey(AppSettings? settings = null)
+    {
+        var s = settings ?? Load();
+        if (string.Equals(s.AiProvider, "Gemini", StringComparison.OrdinalIgnoreCase)) return GetToken("gemini");
+        var key = GetToken(AiProviderCatalog.KeySlot(AiProviderCatalog.ResolveCurrentId(s)));
+        if (string.IsNullOrWhiteSpace(key) && string.IsNullOrWhiteSpace(s.AiPresetId)) key = GetToken("ai");
+        return key;
     }
 
     public void SaveToken(string provider, string value)
@@ -142,6 +157,10 @@ public sealed class SettingsService
             case "google": s.AiGeminiApiKey = encrypted; break;
             case "ai":
             case "openai": s.AiApiKey = encrypted; break;
+            case var name when name.StartsWith("ai:", StringComparison.Ordinal):
+                s.AiProviderKeys ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                s.AiProviderKeys[name[3..]] = encrypted;
+                break;
         }
         Save(s);
     }

@@ -42,7 +42,7 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
         var securityAudit = string.Equals(mode, "SecurityAudit", StringComparison.OrdinalIgnoreCase);
         var activeExternalTools = securityAudit ? [] : _externalTools.Where(tool => tool.IsAvailable()).ToList();
         var configuration = settings.Load();
-        var key = settings.GetToken(string.Equals(configuration.AiProvider, "Gemini", StringComparison.OrdinalIgnoreCase) ? "gemini" : "ai");
+        var key = settings.GetActiveAiKey(configuration);
         var allowChanges = mode is not ("Ask" or "Plan" or "SecurityAudit");
         var skills = new OpenCodeSkillCatalog(_root);
         if (securityAudit && !Directory.Exists(_root))
@@ -80,11 +80,13 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
         var userPrompt = session.Turns.LastOrDefault(turn => turn.Role == "user")?.Content ?? "";
         var selectedMcpTools = mcpTools.SelectTools(userPrompt, allowChanges);
 
+        // Banyak model gratis/lokal tidak mendukung tool-calling. Untuk Ask/Plan kita jatuh kembali ke chat tanpa tools.
+        var toolsUnsupported = false;
         for (var round = 0; round <= MaxToolRounds; round++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var requestBody = CreateChatCompletionRequest(model, conversation,
-                CreateTools(allowChanges, selectedMcpTools, activeExternalTools));
+                toolsUnsupported ? new JArray() : CreateTools(allowChanges, selectedMcpTools, activeExternalTools));
 
             using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
             if (!string.IsNullOrWhiteSpace(key)) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
@@ -96,6 +98,17 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
                 string detail;
                 try { detail = JObject.Parse(responseText)["error"]?["message"]?.ToString() ?? response.ReasonPhrase ?? "Unknown error"; }
                 catch { detail = response.ReasonPhrase ?? "Unknown error"; }
+                if (!toolsUnsupported && AiProviderCatalog.LooksLikeToolsUnsupported((int)response.StatusCode, detail))
+                {
+                    if (allowChanges)
+                        throw new InvalidOperationException($"AI API ({(int)response.StatusCode}): {detail}\n\n" +
+                            "Model ini tampaknya tidak mendukung tool/function calling yang dibutuhkan mode Agent. " +
+                            "Pilih model lain (mis. dari 'Muat daftar model') atau gunakan mode Ask/Plan.");
+                    toolsUnsupported = true;
+                    toolStarted?.Invoke("Model tidak mendukung tool-calling; melanjutkan sebagai chat biasa tanpa akses file.");
+                    round--;
+                    continue;
+                }
                 throw new InvalidOperationException($"AI API ({(int)response.StatusCode}): {detail}");
             }
 
@@ -270,12 +283,17 @@ public sealed class AiAgentService(SettingsService settings, string? workspaceRo
             : value + "/chat/completions";
     }
 
-    internal static JObject CreateChatCompletionRequest(string model, JArray conversation, JArray tools) => new()
+    internal static JObject CreateChatCompletionRequest(string model, JArray conversation, JArray tools)
     {
-        ["model"] = model,
-        ["messages"] = conversation,
-        ["tools"] = tools
-    };
+        var request = new JObject
+        {
+            ["model"] = model,
+            ["messages"] = conversation
+        };
+        // Array "tools" kosong ditolak oleh beberapa provider, dan model tanpa tool-calling gagal bila tools dikirim.
+        if (tools.Count > 0) request["tools"] = tools;
+        return request;
+    }
 
     private async Task<string> SendWithCopilotAsync(AiChatSession chat, string mode, bool allowChanges, bool securityAudit,
         Func<AiToolRequest, Task<bool>> approveAction, Action<string>? toolStarted,

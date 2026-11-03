@@ -16,7 +16,17 @@ public sealed class AiAgentServiceTests
 
         Assert.Equal("gemini-2.5-flash", request["model"]?.Value<string>());
         Assert.NotNull(request["messages"]);
-        Assert.NotNull(request["tools"]);
+        Assert.Null(request["tools"]);
         Assert.Null(request["reasoning_effort"]);
+    }
+
+    [Fact]
+    public void Chat_completion_request_includes_tools_only_when_present()
+    {
+        var messages = new JArray(new JObject { ["role"] = "user", ["content"] = "hi" });
+        var withTools = AiAgentService.CreateChatCompletionRequest("m", messages,
+            new JArray(new JObject { ["type"] = "function" }));
+        Assert.NotNull(withTools["tools"]);
+        Assert.Null(AiAgentService.CreateChatCompletionRequest("m", messages, new JArray())["tools"]);
     }
 }

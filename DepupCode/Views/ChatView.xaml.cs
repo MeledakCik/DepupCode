@@ -344,13 +344,12 @@ public partial class ChatView : UserControl
         var mode = (ModeCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Agent";
         var configuration = _settings.Load();
         var usesCopilot = string.Equals(configuration.AiProvider, "Copilot", StringComparison.OrdinalIgnoreCase);
-        var credentialName = string.Equals(configuration.AiProvider, "Gemini", StringComparison.OrdinalIgnoreCase) ? "gemini" : "ai";
         if (mode is not ("Ask" or "Plan") && string.IsNullOrWhiteSpace(_workspaceRoot))
         {
             ShowStatusMessage("Buka folder workspace sebelum memulai Agent.", isError: true);
             return;
         }
-        if (!usesCopilot && string.IsNullOrWhiteSpace(_settings.GetToken(credentialName)) && !IsLocalEndpoint(configuration.AiApiBaseUrl))
+        if (!usesCopilot && string.IsNullOrWhiteSpace(_settings.GetActiveAiKey(configuration)) && !IsLocalEndpoint(configuration.AiApiBaseUrl))
         {
             Configure_Click(this, new RoutedEventArgs());
             return;
@@ -510,101 +509,210 @@ public partial class ChatView : UserControl
 
     private void Configure_Click(object sender, RoutedEventArgs e)
     {
+        const string NewProviderTag = "__new__";
         var settings = _settings.Load();
         var clearApiKey = false;
         var dialog = new Window
         {
-            Title = "Pengaturan AI Agent", Owner = Window.GetWindow(this), Width = 510, Height = 630,
+            Title = "Pengaturan AI Agent", Owner = Window.GetWindow(this), Width = 540, Height = 760,
             WindowStartupLocation = WindowStartupLocation.CenterOwner, ResizeMode = ResizeMode.NoResize,
             WindowStyle = WindowStyle.ToolWindow, Background = GetBrush("ThemeWindowBrush"), Foreground = GetBrush("ThemePrimaryBrush")
         };
         var content = new Grid { Margin = new Thickness(22) };
         content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         content.Children.Add(new TextBlock { Text = "Sambungkan model AI", FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 5) });
         var description = new TextBlock
         {
-            Text = "Pilih OpenAI/compatible, Google Gemini, atau GitHub Copilot. Copilot memakai autentikasi Copilot CLI atau gh.",
+            Text = "Pilih provider (ada yang gratis atau lokal), atau tambahkan provider OpenAI-compatible sendiri. API key disimpan terpisah untuk setiap provider.",
             Foreground = GetBrush("ThemeMutedBrush"), FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 16)
         };
         Grid.SetRow(description, 1); content.Children.Add(description);
         var fields = new StackPanel();
+
+        var currentTag = settings.AiProvider switch
+        {
+            "Copilot" => "Copilot",
+            "Gemini" => "Gemini",
+            _ => AiProviderCatalog.ResolveCurrentId(settings)
+        };
         var providerBox = new ComboBox { Height = 32, Padding = new Thickness(7, 3, 7, 3) };
-        providerBox.Items.Add(new ComboBoxItem { Content = "OpenAI / Compatible", Tag = "OpenAI" });
-        providerBox.Items.Add(new ComboBoxItem { Content = "Google Gemini", Tag = "Gemini" });
+        foreach (var preset in AiProviderCatalog.Presets.Where(p => p.Id != AiProviderCatalog.ManualPresetId))
+            providerBox.Items.Add(new ComboBoxItem { Content = preset.DisplayName, Tag = preset.Id });
+        providerBox.Items.Add(new ComboBoxItem { Content = "Google Gemini (tier gratis)", Tag = "Gemini" });
         providerBox.Items.Add(new ComboBoxItem { Content = "GitHub Copilot", Tag = "Copilot" });
+        foreach (var custom in settings.AiCustomProviders ?? [])
+            providerBox.Items.Add(new ComboBoxItem { Content = custom.Name + " (manual)", Tag = custom.Id });
+        if (currentTag == AiProviderCatalog.ManualPresetId)
+            providerBox.Items.Add(new ComboBoxItem { Content = "Lainnya (tanpa nama)", Tag = AiProviderCatalog.ManualPresetId });
+        providerBox.Items.Add(new ComboBoxItem { Content = "＋ Tambah provider manual…", Tag = NewProviderTag });
         providerBox.SelectedItem = providerBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item =>
-            string.Equals(item.Tag?.ToString(), settings.AiProvider, StringComparison.OrdinalIgnoreCase)) ?? providerBox.Items[0];
+            string.Equals(item.Tag?.ToString(), currentTag, StringComparison.OrdinalIgnoreCase)) ?? providerBox.Items[0];
         AddComboField(fields, "PROVIDER", providerBox);
+
+        AddField(fields, "NAMA PROVIDER", new TextBox { Height = 32, Padding = new Thickness(8, 4, 8, 4), ToolTip = "Nama yang tampil di daftar provider" });
+        var nameBox = (TextBox)((Border)fields.Children[^1]).Child;
+        var nameLabel = (TextBlock)fields.Children[^2];
+        var nameBorder = (Border)fields.Children[^1];
+
         var languageBox = new ComboBox { Height = 32, Padding = new Thickness(7, 3, 7, 3) };
         languageBox.Items.Add(new ComboBoxItem { Content = "Bahasa Indonesia", Tag = "Indonesian" });
         languageBox.Items.Add(new ComboBoxItem { Content = "English", Tag = "English" });
         languageBox.SelectedItem = languageBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item =>
             string.Equals(item.Tag?.ToString(), settings.AiLanguage, StringComparison.OrdinalIgnoreCase)) ?? languageBox.Items[0];
         AddComboField(fields, "BAHASA UTAMA AI", languageBox);
+
         AddField(fields, "URL API", new TextBox { Text = settings.AiApiBaseUrl, Height = 32, Padding = new Thickness(8, 4, 8, 4) });
         var endpointBox = (TextBox)((Border)fields.Children[^1]).Child;
         var endpointLabel = (TextBlock)fields.Children[^2];
         var endpointBorder = (Border)fields.Children[^1];
-        AddField(fields, "Model", new TextBox { Text = settings.AiModel, Height = 32, Padding = new Thickness(8, 4, 8, 4) });
-        var modelBox = (TextBox)((Border)fields.Children[^1]).Child;
+
+        var modelBox = new ComboBox { Height = 32, Padding = new Thickness(7, 3, 7, 3), IsEditable = true, Text = settings.AiModel };
+        AddComboField(fields, "MODEL (pilih dari daftar atau ketik manual)", modelBox);
+
+        var modelActions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, -4, 0, 10) };
+        var loadModels = new Button { Content = "Muat daftar model", Height = 28, Padding = new Thickness(10, 2, 10, 2), Margin = new Thickness(0, 0, 8, 0) };
+        var testConnection = new Button { Content = "Tes koneksi", Height = 28, Padding = new Thickness(10, 2, 10, 2) };
+        modelActions.Children.Add(loadModels); modelActions.Children.Add(testConnection);
+        fields.Children.Add(modelActions);
+        var actionStatus = new TextBlock
+        {
+            Foreground = GetBrush("ThemeMutedBrush"), FontSize = 10, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10)
+        };
+        fields.Children.Add(actionStatus);
+
         var keyLabel = new TextBlock { Text = "API KEY", FontSize = 9, FontWeight = FontWeights.Bold, Foreground = GetBrush("ThemeMutedBrush"), Margin = new Thickness(0, 0, 0, 5) };
         fields.Children.Add(keyLabel);
         var keyBox = new PasswordBox { Height = 32, Padding = new Thickness(8, 4, 8, 4), ToolTip = "Kosongkan untuk mempertahankan API key tersimpan" };
         fields.Children.Add(keyBox);
-        var keyState = new TextBlock
-        {
-            Text = string.IsNullOrWhiteSpace(_settings.GetToken(settings.AiProvider == "Gemini" ? "gemini" : "ai"))
-                ? (IsLocalEndpoint(settings.AiApiBaseUrl) ? "Endpoint lokal: API key biasanya tidak diperlukan." : "API key belum diatur.")
-                : "API key tersimpan dan dilindungi Windows DPAPI.",
-            Foreground = GetBrush("ThemeMutedBrush"), FontSize = 10, Margin = new Thickness(0, 5, 0, 0)
-        };
+        var keyState = new TextBlock { Foreground = GetBrush("ThemeMutedBrush"), FontSize = 10, Margin = new Thickness(0, 5, 0, 0) };
         fields.Children.Add(keyState);
+        var providerNote = new TextBlock
+        {
+            Foreground = GetBrush("ThemeMutedBrush"), FontSize = 10, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0)
+        };
+        fields.Children.Add(providerNote);
+        var openKeyPage = new Button { Content = "Buka halaman API key", Height = 28, Padding = new Thickness(10, 2, 10, 2), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
+        fields.Children.Add(openKeyPage);
+        string? keyPageUrl = null;
+
+        string SelectedTag() => (providerBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? currentTag;
+        string StoredKey(string tag)
+        {
+            if (tag == "Gemini") return _settings.GetToken("gemini");
+            if (tag is "Copilot" or NewProviderTag) return "";
+            var stored = _settings.GetToken(AiProviderCatalog.KeySlot(tag));
+            if (string.IsNullOrWhiteSpace(stored) && string.IsNullOrWhiteSpace(settings.AiPresetId) &&
+                string.Equals(tag, AiProviderCatalog.ResolveCurrentId(settings), StringComparison.OrdinalIgnoreCase))
+                stored = _settings.GetToken("ai");
+            return stored;
+        }
+        string EffectiveKey() => string.IsNullOrWhiteSpace(keyBox.Password) ? StoredKey(SelectedTag()) : keyBox.Password;
+
         void UpdateProviderFields(bool applyPreset)
         {
-            var provider = (providerBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "OpenAI";
-            var copilot = provider == "Copilot";
+            var tag = SelectedTag();
+            var copilot = tag == "Copilot";
+            var gemini = tag == "Gemini";
+            var preset = AiProviderCatalog.FindPreset(tag);
+            var custom = AiProviderCatalog.FindCustom(settings, tag);
+            var named = tag == NewProviderTag || custom is not null;
+            nameLabel.Visibility = nameBorder.Visibility = named ? Visibility.Visible : Visibility.Collapsed;
             endpointLabel.Visibility = endpointBorder.Visibility = copilot ? Visibility.Collapsed : Visibility.Visible;
             keyLabel.Visibility = keyBox.Visibility = keyState.Visibility = copilot ? Visibility.Collapsed : Visibility.Visible;
+            loadModels.Visibility = testConnection.Visibility = copilot ? Visibility.Collapsed : Visibility.Visible;
             if (applyPreset)
             {
-                switch (provider)
+                modelBox.Items.Clear();
+                actionStatus.Text = "";
+                keyBox.Clear();
+                clearApiKey = false;
+                if (gemini)
                 {
-                    case "Gemini":
-                        endpointBox.Text = "https://generativelanguage.googleapis.com/v1beta/openai";
-                        modelBox.Text = "gemini-2.5-flash";
-                        keyLabel.Text = "GEMINI API KEY";
-                        break;
-                    case "Copilot":
-                        modelBox.Text = "gpt-5";
-                        break;
-                    default:
-                        endpointBox.Text = "https://api.openai.com/v1";
-                        modelBox.Text = "gpt-4.1-mini";
-                        keyLabel.Text = "API KEY";
-                        break;
+                    endpointBox.Text = "https://generativelanguage.googleapis.com/v1beta/openai";
+                    modelBox.Text = "gemini-2.5-flash";
+                }
+                else if (copilot) modelBox.Text = "gpt-5";
+                else if (custom is not null)
+                {
+                    nameBox.Text = custom.Name; endpointBox.Text = custom.BaseUrl; modelBox.Text = custom.Model;
+                }
+                else if (tag == NewProviderTag)
+                {
+                    nameBox.Text = ""; endpointBox.Text = ""; modelBox.Text = "";
+                }
+                else if (preset is not null && preset.Id != AiProviderCatalog.ManualPresetId)
+                {
+                    endpointBox.Text = preset.BaseUrl; modelBox.Text = preset.DefaultModel;
                 }
             }
-            if (provider == "OpenAI") keyLabel.Text = "API KEY";
-            var credentialName = provider == "Gemini" ? "gemini" : "ai";
-            keyState.Text = string.IsNullOrWhiteSpace(_settings.GetToken(credentialName))
-                ? (IsLocalEndpoint(endpointBox.Text) ? "Endpoint lokal: API key biasanya tidak diperlukan." : "API key belum diatur.")
-                : "API key tersimpan dan dilindungi Windows DPAPI.";
+            else if (custom is not null) nameBox.Text = custom.Name;
+
+            keyLabel.Text = gemini ? "GEMINI API KEY" : "API KEY";
+            var keyNeeded = !AiProviderCatalog.IsLocalEndpoint(endpointBox.Text) && (preset?.RequiresKey ?? true);
+            keyState.Text = !string.IsNullOrWhiteSpace(StoredKey(tag)) ? "API key tersimpan dan dilindungi Windows DPAPI."
+                : keyNeeded ? "API key belum diatur." : "Endpoint lokal: API key biasanya tidak diperlukan.";
+            providerNote.Text = gemini
+                ? "Google AI Studio menyediakan tier gratis dengan batas pemakaian. Buat API key di aistudio.google.com."
+                : copilot ? "Copilot memakai autentikasi Copilot CLI atau `gh auth login`."
+                : preset?.Note ?? (custom is not null ? "Provider manual: pastikan URL dan model mendukung OpenAI Chat Completions." : "");
+            keyPageUrl = gemini ? "https://aistudio.google.com/apikey" : string.IsNullOrWhiteSpace(preset?.KeyUrl) ? null : preset!.KeyUrl;
+            openKeyPage.Visibility = keyPageUrl is null || copilot ? Visibility.Collapsed : Visibility.Visible;
         }
         providerBox.SelectionChanged += (_, _) => UpdateProviderFields(applyPreset: true);
         UpdateProviderFields(applyPreset: false);
-        Grid.SetRow(fields, 2); content.Children.Add(fields);
+
+        openKeyPage.Click += (_, _) =>
+        {
+            if (keyPageUrl is null) return;
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(keyPageUrl) { UseShellExecute = true }); }
+            catch (Exception ex) { actionStatus.Text = "Tidak dapat membuka browser: " + ex.Message; }
+        };
+        loadModels.Click += async (_, _) =>
+        {
+            loadModels.IsEnabled = testConnection.IsEnabled = false;
+            actionStatus.Text = "Memuat daftar model…";
+            try
+            {
+                var ids = await AiProviderCatalog.FetchModelIdsAsync(endpointBox.Text, EffectiveKey());
+                var typed = modelBox.Text;
+                modelBox.Items.Clear();
+                foreach (var id in ids) modelBox.Items.Add(id);
+                modelBox.Text = typed;
+                actionStatus.Text = ids.Count == 0
+                    ? "Provider tidak mengembalikan daftar model. Ketik nama model secara manual."
+                    : $"{ids.Count} model ditemukan. Pilih dari daftar atau ketik manual.";
+                if (ids.Count > 0) modelBox.IsDropDownOpen = true;
+            }
+            catch (Exception ex) { actionStatus.Text = "Gagal memuat model: " + ex.Message; }
+            finally { loadModels.IsEnabled = testConnection.IsEnabled = true; }
+        };
+        testConnection.Click += async (_, _) =>
+        {
+            loadModels.IsEnabled = testConnection.IsEnabled = false;
+            actionStatus.Text = "Menguji koneksi…";
+            try
+            {
+                var reply = await AiProviderCatalog.TestChatAsync(endpointBox.Text, EffectiveKey(), modelBox.Text);
+                actionStatus.Text = string.IsNullOrWhiteSpace(reply)
+                    ? "Koneksi berhasil, tetapi model membalas kosong."
+                    : "Berhasil. Balasan model: " + (reply.Length > 120 ? reply[..120] + "…" : reply);
+            }
+            catch (Exception ex) { actionStatus.Text = "Tes gagal: " + ex.Message; }
+            finally { loadModels.IsEnabled = testConnection.IsEnabled = true; }
+        };
+
+        var scroll = new ScrollViewer { Content = fields, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        Grid.SetRow(scroll, 2); content.Children.Add(scroll);
         var note = new TextBlock
         {
-            Text = "Percakapan disimpan lokal. Prompt dan konteks file dapat dikirim ke provider. Masuk dengan Copilot CLI atau `gh auth login` untuk Copilot.",
-            Foreground = GetBrush("ThemeMutedBrush"), FontSize = 10, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 14, 0, 0)
+            Text = "Percakapan disimpan lokal. Prompt dan konteks file dapat dikirim ke provider; model gratis dapat dicatat provider. Model lokal tidak mengirim prompt ke internet.",
+            Foreground = GetBrush("ThemeMutedBrush"), FontSize = 10, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0)
         };
-        Grid.SetRow(note, 5); content.Children.Add(note);
+        Grid.SetRow(note, 3); content.Children.Add(note);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 13, 0, 0) };
         var cancel = new Button { Content = "Batal", MinWidth = 84, Height = 32, Margin = new Thickness(0, 0, 8, 0), IsCancel = true };
         var clear = new Button { Content = "Hapus key", MinWidth = 90, Height = 32, Margin = new Thickness(0, 0, 8, 0) };
@@ -613,32 +721,94 @@ public partial class ChatView : UserControl
         clear.Click += (_, _) => { clearApiKey = true; keyBox.Clear(); keyState.Text = "API key akan dihapus saat pengaturan disimpan."; };
         save.Click += (_, _) =>
         {
-            var provider = (providerBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "OpenAI";
-            if (provider != "Copilot" && (!Uri.TryCreate(endpointBox.Text.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("https" or "http")))
+            var tag = SelectedTag();
+            var url = endpointBox.Text.Trim();
+            var model = modelBox.Text.Trim();
+            var providerName = nameBox.Text.Trim();
+            if (tag != "Copilot" && (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme is not ("https" or "http")))
             {
                 MessageBox.Show(dialog, "Masukkan URL API yang valid (http atau https).", "URL tidak valid", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (string.IsNullOrWhiteSpace(modelBox.Text))
+            if (model.Length == 0)
             {
                 MessageBox.Show(dialog, "Nama model wajib diisi.", "Model belum diisi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            settings.AiProvider = provider;
-            settings.AiLanguage = (languageBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Indonesian";
-            if (provider != "Copilot") settings.AiApiBaseUrl = endpointBox.Text.Trim().TrimEnd('/');
-            settings.AiModel = modelBox.Text.Trim();
-            _settings.Save(settings);
-            if (provider != "Copilot")
+            var isCustom = tag == NewProviderTag || AiProviderCatalog.FindCustom(settings, tag) is not null;
+            if (isCustom && providerName.Length == 0)
             {
-                var credentialName = provider == "Gemini" ? "gemini" : "ai";
-                if (clearApiKey) _settings.SaveToken(credentialName, "");
-                else if (!string.IsNullOrWhiteSpace(keyBox.Password)) _settings.SaveToken(credentialName, keyBox.Password);
+                MessageBox.Show(dialog, "Beri nama provider manual ini.", "Nama belum diisi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Pengaturan lama menyimpan satu key bersama di slot "ai"; pindahkan ke slot provider yang sesuai.
+            var legacyId = string.IsNullOrWhiteSpace(settings.AiPresetId) ? AiProviderCatalog.ResolveCurrentId(settings) : null;
+            var legacyKey = legacyId is null ? "" : _settings.GetToken("ai");
+            var credentialSlot = "";
+            settings.AiLanguage = (languageBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Indonesian";
+            settings.AiModel = model;
+            if (tag == "Copilot") settings.AiProvider = "Copilot";
+            else if (tag == "Gemini")
+            {
+                settings.AiProvider = "Gemini";
+                settings.AiApiBaseUrl = url.TrimEnd('/');
+                credentialSlot = "gemini";
+            }
+            else
+            {
+                settings.AiProvider = "OpenAI";
+                var id = tag;
+                settings.AiCustomProviders ??= [];
+                if (tag == NewProviderTag)
+                {
+                    id = AiProviderCatalog.NewCustomId(providerName,
+                        settings.AiCustomProviders.Select(p => p.Id).Concat(AiProviderCatalog.Presets.Select(p => p.Id)));
+                    settings.AiCustomProviders.Add(new AiCustomProvider { Id = id, Name = providerName, BaseUrl = url.TrimEnd('/'), Model = model });
+                }
+                else if (AiProviderCatalog.FindCustom(settings, tag) is { } existing)
+                {
+                    existing.Name = providerName; existing.BaseUrl = url.TrimEnd('/'); existing.Model = model;
+                }
+                settings.AiPresetId = id;
+                settings.AiApiBaseUrl = url.TrimEnd('/');
+                credentialSlot = AiProviderCatalog.KeySlot(id);
+                if (!clearApiKey && string.IsNullOrWhiteSpace(keyBox.Password) && !string.IsNullOrWhiteSpace(legacyKey) &&
+                    string.Equals(legacyId, id, StringComparison.OrdinalIgnoreCase) && string.IsNullOrWhiteSpace(_settings.GetToken(credentialSlot)))
+                    keyBox.Password = legacyKey;
+            }
+            _settings.Save(settings);
+            if (credentialSlot.Length > 0)
+            {
+                if (clearApiKey) _settings.SaveToken(credentialSlot, "");
+                else if (!string.IsNullOrWhiteSpace(keyBox.Password)) _settings.SaveToken(credentialSlot, keyBox.Password);
             }
             dialog.DialogResult = true;
         };
-        buttons.Children.Add(cancel); buttons.Children.Add(clear); buttons.Children.Add(save);
-        Grid.SetRow(buttons, 6); content.Children.Add(buttons);
+        var deleteProvider = new Button { Content = "Hapus provider", MinWidth = 100, Height = 32, Margin = new Thickness(0, 0, 8, 0) };
+        deleteProvider.Click += (_, _) =>
+        {
+            var tag = SelectedTag();
+            if (AiProviderCatalog.FindCustom(settings, tag) is not { } custom) return;
+            if (MessageBox.Show(dialog, $"Hapus provider manual \"{custom.Name}\" beserta API key-nya?", "Hapus provider",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+            settings.AiCustomProviders.RemoveAll(p => string.Equals(p.Id, custom.Id, StringComparison.OrdinalIgnoreCase));
+            if (string.Equals(settings.AiPresetId, custom.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                var fallback = AiProviderCatalog.Presets[0];
+                settings.AiProvider = "OpenAI"; settings.AiPresetId = fallback.Id;
+                settings.AiApiBaseUrl = fallback.BaseUrl; settings.AiModel = fallback.DefaultModel;
+            }
+            _settings.Save(settings);
+            _settings.SaveToken(AiProviderCatalog.KeySlot(custom.Id), "");
+            dialog.DialogResult = true;
+        };
+        void UpdateDeleteVisibility() =>
+            deleteProvider.Visibility = AiProviderCatalog.FindCustom(settings, SelectedTag()) is null ? Visibility.Collapsed : Visibility.Visible;
+        providerBox.SelectionChanged += (_, _) => UpdateDeleteVisibility();
+        UpdateDeleteVisibility();
+        buttons.Children.Add(cancel); buttons.Children.Add(deleteProvider); buttons.Children.Add(clear); buttons.Children.Add(save);
+        Grid.SetRow(buttons, 4); content.Children.Add(buttons);
         dialog.Content = content;
         if (dialog.ShowDialog() == true) UpdateConfigurationStatus();
     }
@@ -685,9 +855,9 @@ public partial class ChatView : UserControl
     {
         var configuration = _settings.Load();
         var usesCopilot = string.Equals(configuration.AiProvider, "Copilot", StringComparison.OrdinalIgnoreCase);
-        var key = _settings.GetToken(configuration.AiProvider == "Gemini" ? "gemini" : "ai");
+        var key = _settings.GetActiveAiKey(configuration);
         var baseLabel = !usesCopilot && string.IsNullOrWhiteSpace(key) && !IsLocalEndpoint(configuration.AiApiBaseUrl)
-            ? "Atur provider AI lewat ⚙" : (usesCopilot ? "Copilot · " : configuration.AiProvider + " · ") + configuration.AiModel;
+            ? "Atur provider AI lewat ⚙" : AiProviderCatalog.DisplayNameFor(configuration) + " · " + configuration.AiModel;
         var inputTokens = _activeSession?.InputTokens ?? 0;
         var outputTokens = _activeSession?.OutputTokens ?? 0;
         var totalTokens = inputTokens > long.MaxValue - outputTokens ? long.MaxValue : inputTokens + outputTokens;

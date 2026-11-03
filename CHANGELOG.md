@@ -10,6 +10,34 @@ Versi rilis diambil dari properti `<Version>` pada `DepupCode/DepupCode.csproj`.
 
 Belum ada perubahan yang direncanakan untuk rilis berikutnya.
 
+## [2.5.3] - 2026-11-04
+
+Rilis ini membuat AI Agent bisa dipakai dengan model gratis/lokal dan provider buatan sendiri.
+
+### Ditambahkan
+
+- Preset provider di pengaturan AI Agent: OpenRouter (`openrouter/free`), Groq, GitHub Models,
+  Mistral, Ollama (lokal), LM Studio (lokal), OpenAI, serta Gemini dan Copilot seperti sebelumnya.
+- **Provider manual**: tambahkan provider OpenAI-compatible sendiri (nama, URL API, model),
+  simpan, ubah, atau hapus dari pengaturan.
+- Tombol **Muat daftar model** (mengambil `GET /models` dari provider) dan **Tes koneksi**
+  (mengirim satu pesan nyata ke provider) langsung di dialog pengaturan.
+- Tombol untuk membuka halaman pembuatan API key provider yang dipilih.
+- Tes otomatis untuk katalog provider, parsing daftar model, dan bentuk request.
+
+### Diubah
+
+- API key kini disimpan **per provider** (terenkripsi DPAPI) sehingga berpindah dari Groq ke
+  OpenAI tidak menimpa key lain dan key satu provider tidak terkirim ke provider lain. Pengaturan
+  lama dimigrasikan otomatis berdasarkan URL API saat pertama kali disimpan.
+- Request chat tidak lagi mengirim array `tools` kosong.
+
+### Diperbaiki
+
+- Model yang tidak mendukung tool-calling (umum pada model gratis/lokal kecil) tidak lagi membuat
+  mode Ask/Plan gagal: aplikasi otomatis mengulang sebagai chat biasa tanpa tools. Mode Agent
+  menampilkan pesan yang jelas agar pengguna memilih model yang mendukung tools.
+
 ## [2.5.2] - 2026-11-04
 
 Rilis perbaikan installer dan AI Agent untuk penggunaan desktop setelah setup.

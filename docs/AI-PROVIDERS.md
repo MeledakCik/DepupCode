@@ -1,38 +1,45 @@
 # Mengatur dan menguji AI Agent
 
-Depup Code saat ini sudah menerima provider **OpenAI-compatible**. Jadi Groq maupun provider lain yang menyediakan endpoint Chat Completions kompatibel dapat diatur tanpa perubahan kode:
+Buka panel **AI Agent → ⚙ Pengaturan AI Agent**. Pilih provider dari daftar; URL API dan model
+saran terisi otomatis. Isi API key (kecuali provider lokal), lalu tekan **Tes koneksi** dan **Simpan**.
+API key disimpan terpisah untuk setiap provider dan dienkripsi dengan Windows DPAPI.
 
-1. Buka panel **AI Agent → ⚙ Pengaturan AI Agent**.
-2. Pilih **OpenAI / Compatible**.
-3. Isi **URL API** dengan base URL provider (jangan tambahkan `/chat/completions` jika tidak diminta; aplikasi menambahkannya otomatis).
-4. Isi **Model** dengan ID model yang tersedia di akun/provider.
-5. Tempel API key pada kolom **API KEY**, lalu simpan.
+## Pilihan gratis atau lokal
 
-## Groq
+Kuota, batas, dan daftar model gratis ditentukan provider dan bisa berubah. Tekan **Muat daftar model**
+untuk melihat model yang benar-benar tersedia, lalu pilih atau ketik manual.
 
-Gunakan base URL `https://api.groq.com/openai/v1`, API key dari akun Groq, dan model yang saat itu tercantum tersedia pada konsol Groq. Daftar model dan kuota dapat berubah; cek konsol/provider untuk model aktif dan batas penggunaan terbaru. Paket atau kuota gratis, jika tersedia untuk akun, tetap tunduk pada limit provider.
+| Provider | Biaya | API key | Catatan |
+| --- | --- | --- | --- |
+| OpenRouter | model `:free` / `openrouter/free` | ya (akun gratis) | Ada batas harian; dukungan tool bervariasi; prompt dapat dicatat provider. |
+| Groq | tier gratis ber-rate-limit | ya | Cek konsol untuk model aktif. |
+| GitHub Models | batas gratis | token GitHub (PAT) | Izin Models diperlukan. |
+| Gemini | tier gratis | ya (Google AI Studio) | |
+| Ollama | gratis, lokal | tidak | `http://localhost:11434/v1`; unduh model dulu. |
+| LM Studio | gratis, lokal | tidak | `http://localhost:1234/v1`; aktifkan Local Server. |
 
-## Model lokal gratis dengan Ollama
+Untuk model lokal, jalankan Ollama lalu `ollama pull qwen2.5-coder:7b` (atau model lain yang mendukung tools).
+Kecepatan dan kualitas bergantung pada RAM/VRAM.
 
-Model lokal tidak memerlukan API key dan dapat berjalan tanpa mengirim prompt ke layanan model online. Instal Ollama, unduh model yang sesuai dengan perangkat, lalu jalankan Ollama. Pada pengaturan AI Depup Code pilih **OpenAI / Compatible**, isi:
+## Menambah provider sendiri
 
-- **URL API:** `http://localhost:11434/v1`
-- **Model:** nama model yang terpasang, seperti yang ditampilkan oleh `ollama list`
-- **API KEY:** kosong
+Pilih **＋ Tambah provider manual…**, isi nama, URL API (base URL, tanpa `/chat/completions`), dan model,
+lalu simpan. Provider tampil di daftar dengan label *(manual)* dan dapat diubah atau dihapus. Syaratnya:
+provider mendukung format OpenAI Chat Completions (`POST {url}/chat/completions`).
 
-Pastikan server Ollama aktif. Kualitas dan kecepatan sangat bergantung pada model, RAM/VRAM, dan perangkat. Model perlu diunduh terlebih dahulu dan ukuran unduhan dapat besar.
+## Tool-calling
 
-## Smoke test manual
+Mode **Agent** memakai tool (baca/tulis file, terminal) sehingga butuh model yang mendukung tool-calling.
+Jika model tidak mendukungnya, mode **Ask/Plan** otomatis berjalan sebagai chat biasa tanpa tools,
+sedangkan **Agent** menampilkan pesan agar Anda memilih model lain.
 
-Tidak ada kredensial provider yang dibundel, sehingga pengujian koneksi online harus dilakukan dengan API key milik pengguna. Setelah menyimpan konfigurasi:
+## Smoke test
 
-1. Pilih mode **Ask** dan kirim `Balas hanya dengan: DEPUP AI OK`.
-2. Pastikan balasan muncul. Jika gagal, baca pesan error di panel, lalu periksa URL, ID model, API key, koneksi jaringan, kuota, serta apakah provider mendukung endpoint dan format OpenAI Chat Completions.
-3. Untuk mengecek tool agent, buka workspace yang aman, pilih **Agent**, lalu minta agent hanya membaca/menyebutkan file tertentu. Jangan meminta perubahan untuk smoke test. Tindakan yang dapat mengubah file atau menjalankan perintah tetap memerlukan persetujuan.
-4. Tes otomatis repository memeriksa komponen layanan; tes tersebut tidak membuktikan bahwa API eksternal dapat diakses atau kredensial tertentu valid. Jalankan di Windows dengan .NET 8 SDK:
+1. **Tes koneksi** di dialog pengaturan mengirim `Balas hanya dengan: DEPUP AI OK` ke provider.
+2. Di panel chat, mode **Ask**, kirim pesan yang sama dan pastikan balasan muncul.
+3. Mode **Agent** di workspace aman: minta agent hanya membaca/menyebut file tertentu. Jangan minta perubahan untuk smoke test.
+4. Tes otomatis (Windows, .NET 8 SDK): `dotnet test .\tests\DepupCode.Tests\DepupCode.Tests.csproj`.
+   Tes ini tidak membuktikan API eksternal dapat diakses atau key valid.
 
-```powershell
-dotnet test .\tests\DepupCode.Tests\DepupCode.Tests.csproj
-```
-
-Jangan menaruh API key di prompt, issue, log, atau file konfigurasi yang akan di-commit. Masukkan key melalui dialog pengaturan aplikasi; periksa pula kebijakan privasi provider sebelum mengirim source code.
+Jangan menaruh API key di prompt, issue, log, atau file yang akan di-commit, dan periksa kebijakan privasi
+provider sebelum mengirim source code.
