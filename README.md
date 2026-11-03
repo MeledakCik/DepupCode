@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="DepupCode/Assets/logo.png" alt="Logo Depup Code" width="112" />
+  <img src="DepupCode/Assets/depup.png" alt="Logo Depup Code" width="112" />
 </p>
 
 <h1 align="center">Depup Code</h1>
